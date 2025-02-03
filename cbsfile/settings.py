@@ -76,8 +76,15 @@ WSGI_APPLICATION = 'cbsfile.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'deenas',  # Database name
+        'USER': 'root',           # Default XAMPP MySQL user
+        'PASSWORD': '',           # No password by default in XAMPP
+        'HOST': '127.0.0.1',      # localhost
+        'PORT': '3306',           # Default MySQL port in XAMPP
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"
+        }
     }
 }
 
