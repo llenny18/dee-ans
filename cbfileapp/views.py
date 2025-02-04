@@ -30,3 +30,9 @@ def student_accounts(request):
     query = "SELECT * FROM student_accounts"
     data = fetch_data(query)
     return render(request, 'admin_p/student-accounts.html', {'data': data})
+
+def login_admin(request):
+    return render(request, 'admin_p/a-login.html')
+
+def reg_admin(request):
+    return render(request, 'admin_p/a-register.html')
