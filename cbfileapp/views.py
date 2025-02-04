@@ -36,3 +36,9 @@ def login_admin(request):
 
 def reg_admin(request):
     return render(request, 'admin_p/a-register.html')
+
+def login_student(request):
+    return render(request, 'student/s-login.html')
+
+def reg_student(request):
+    return render(request, 'student/s-register.html')
