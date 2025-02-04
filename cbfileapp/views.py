@@ -4,6 +4,8 @@ from django.db import connection
 def read_html(request):
     return render(request, 'admin_p/index.html')
 
+def read_html_s(request):
+    return render(request, 'student/index.html')
 
 def fetch_data(query):
     with connection.cursor() as cursor:
@@ -42,3 +44,9 @@ def login_student(request):
 
 def reg_student(request):
     return render(request, 'student/s-register.html')
+
+def admin_folders(request):
+    return render(request, 'admin_p/folders.html')
+
+def student_folders(request):
+    return render(request, 'student/folders.html')
