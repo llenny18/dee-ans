@@ -14,13 +14,13 @@
 
     <ul class="menu-inner py-1">
       <!-- Dashboard -->
-      <li class="menu-item active">
+      <li class="menu-item {% if request.path == '/' %}active{% endif %}">
         <a href="{% url '' %}" class="menu-link">
           <i class="menu-icon tf-icons bx bx-home-circle"></i>
           <div data-i18n="Analytics">Dashboard</div>
         </a>
       </li>
-      <li class="menu-item">
+      <li class="menu-item {% if request.path == '/admin_folder/' %}active{% endif %}">
         <a href="{% url 'admin_folder' %}" class="menu-link">
           <i class="menu-icon tf-icons bx bxs-file"></i>
           <div data-i18n="Analytics">File Folders</div>
@@ -31,36 +31,36 @@
       <li class="menu-header small text-uppercase">
         <span class="menu-header-text">User Management</span>
       </li>
-      <li class="menu-item">
+      <li class="menu-item {% if request.path == '/admin_accounts/' or request.path == '/admin_logs/'  %}active open{% endif %}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
           <i class="menu-icon tf-icons bx bx-dock-top"></i>
           <div data-i18n="Account Settings">Faculty/Admin</div>
         </a>
         <ul class="menu-sub">
-            <li class="menu-item">
+            <li class="menu-item {% if request.path == '/admin_logs/' %}active{% endif %}">
                 <a href="{% url 'admin_logs' %}" class="menu-link" >
                   <div data-i18n="Basic">Logs</div>
                 </a>
               </li>
-              <li class="menu-item">
+              <li class="menu-item {% if request.path == '/admin_accounts/' %}active{% endif %}">
                 <a href="{% url 'admin_accounts' %}" class="menu-link" >
                   <div data-i18n="Basic">Accounts</div>
                 </a>
               </li>
         </ul>
       </li>
-      <li class="menu-item">
+      <li class="menu-item {% if request.path == '/student_accounts/' or request.path == '/student_logs/'  %}active open{% endif %}">
         <a href="javascript:void(0);" class="menu-link menu-toggle">
           <i class="menu-icon tf-icons bx bx-lock-open-alt"></i>
           <div data-i18n="Authentications">Student</div>
         </a>
         <ul class="menu-sub">
-          <li class="menu-item">
+          <li class="menu-item {% if request.path == '/student_logs/' %}active{% endif %}">
             <a href="{% url 'student_logs' %}" class="menu-link" >
               <div data-i18n="Basic">Logs</div>
             </a>
           </li>
-          <li class="menu-item">
+          <li class="menu-item {% if request.path == '/student_accounts/'  %}active{% endif %}">
             <a href="{% url 'student_accounts' %}" class="menu-link" >
               <div data-i18n="Basic">Accounts</div>
             </a>

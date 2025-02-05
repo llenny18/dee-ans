@@ -5,7 +5,7 @@ from django.contrib.auth import login
 from django.contrib import messages
 from django.db import connection
 from django.contrib.auth.hashers import check_password
-from .models import FacultyAccount, StudentFolderView, AdminLogs
+from .models import FacultyAccount, StudentFolderView, AdminLogs, FacultyAdminLogs, StudentActivityLogs, StudentAccount
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
@@ -159,7 +159,7 @@ def admin_logs(request):
     if not faculty_id:
         return redirect(reverse('admin_login'))  # 'admin_login' should be the name of your login URL
 
-    data = AdminLogs.objects.all()
+    data = FacultyAdminLogs.objects.all()
     return render(request, 'admin_p/admin-logs.html', {'faculty_id': faculty_id, 'full_name': full_name,'data': data})
 
 def student_logs(request):
@@ -171,8 +171,8 @@ def student_logs(request):
         return redirect(reverse('admin_login'))  # 'admin_login' should be the name of your login URL
 
 
-    query = "SELECT * FROM student_logs"
-    data = fetch_data(query)
+    data = StudentActivityLogs.objects.all()
+
     return render(request, 'admin_p/student-logs.html', {'faculty_id': faculty_id, 'full_name': full_name,'data': data})
 
 def admin_accounts(request):
@@ -184,8 +184,7 @@ def admin_accounts(request):
         return redirect(reverse('admin_login'))  # 'admin_login' should be the name of your login URL
 
 
-    query = "SELECT * FROM admin_accounts"
-    data = fetch_data(query)
+    data = FacultyAccount.objects.all()
     return render(request, 'admin_p/admin-accounts.html', {'faculty_id': faculty_id, 'full_name': full_name,'data': data})
 
 def student_accounts(request):
@@ -197,8 +196,7 @@ def student_accounts(request):
         return redirect(reverse('admin_login'))  # 'admin_login' should be the name of your login URL
 
 
-    query = "SELECT * FROM student_accounts"
-    data = fetch_data(query)
+    data = StudentAccount.objects.all()
     return render(request, 'admin_p/student-accounts.html', {'faculty_id': faculty_id, 'full_name': full_name,'data': data})
 
 def logout_admin(request):

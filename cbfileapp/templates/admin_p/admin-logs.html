@@ -69,22 +69,23 @@
 
               <!-- Basic Bootstrap Table -->
               <div class="card">
-                <h5 class="card-header">Table Basic</h5>
                 <div class="table-responsive text-nowrap">
                   <table class="table">
                     <thead>
                       <tr>
-                        {% for column in data.0.keys %}
-                        <th>{{ column }}</th>
-                        {% endfor %}
+                        <th>G-suite</th>  <!-- Replace with actual field names like 'field1', 'field2' -->
+                        <th>Faculty Name</th>
+                        <th>Action </th>
+                        <th>Timestamp</th>
                       </tr>
                     </thead>
                     <tbody class="table-border-bottom-0">
-                      {% for row in data %}
+                      {% for log in data %}
                       <tr>
-                          {% for value in row.values %}
-                          <td>{{ value }}</td>
-                          {% endfor %}
+                        <td>{{ log.gsuite  }}</td> <!-- Replace 'field1' with actual model field names -->
+                        <td>{{ log.first_name  }} {{ log.middle_name  }} {{ log.last_name  }}</td>
+                        <td>{{ log.action  }}</td>
+                        <td>{{ log.timestamp  }}</td>
                       </tr>
                       {% empty %}
                       <tr><td colspan="100%">No records found.</td></tr>

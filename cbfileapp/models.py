@@ -37,6 +37,44 @@ class AdminLogs(models.Model):
     def __str__(self):
         return f"Admin Log {self.log_id} - {self.action}"
 
+
+
+class FacultyAdminLogs(models.Model):
+    faculty_id = models.IntegerField()
+    gsuite = models.CharField(max_length=100)
+    first_name = models.CharField(max_length=50, null=True)
+    middle_name = models.CharField(max_length=50, null=True)
+    last_name = models.CharField(max_length=50, null=True)
+    log_id = models.IntegerField()
+    admin_id = models.IntegerField()
+    action = models.CharField(max_length=255)
+    timestamp = models.DateTimeField()
+    ip_address = models.CharField(max_length=45, null=True)
+    user_agent = models.TextField(null=True)
+
+    class Meta:
+        db_table = 'faculty_admin_logs'  # The name of the view
+        managed = False  # Django will not manage this table
+        
+
+
+class StudentActivityLogs(models.Model):
+    sr_code = models.CharField(max_length=10)
+    first_name = models.CharField(max_length=50, null=True)
+    middle_name = models.CharField(max_length=50, null=True)
+    last_name = models.CharField(max_length=50, null=True)
+    log_id = models.IntegerField()
+    student_id = models.IntegerField()
+    action = models.CharField(max_length=255)
+    timestamp = models.DateTimeField()
+    ip_address = models.CharField(max_length=45, null=True)
+    user_agent = models.TextField(null=True)
+
+    class Meta:
+        db_table = 'student_activity_logs'  # The name of the view
+        managed = False  # Django will not manage this table
+
+
 class StudentLogs(models.Model):
     log_id = models.AutoField(primary_key=True)
     student = models.CharField(max_length=255)
