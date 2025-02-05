@@ -131,12 +131,16 @@ def read_html(request):
     return render(request, 'admin_p/index.html', context)
 
 def read_html_s(request):
-    faculty_id = request.session.get('faculty_id', None)
-    full_name = request.session.get('a_fullname', None)
+    student_id = request.session.get('student_id', None)
+    full_name = request.session.get('s_fullname', None)
+
+    # If there is no faculty_id in the session, redirect to the admin login page
+    if not student_id:
+        return redirect(reverse('student_login'))  # 'admin_login' should be the name of your login URL
 
     # Pass the session data to the template
     context = {
-        'faculty_id': faculty_id,
+        'faculty_id': student_id,
         'full_name': full_name,
     }
 
@@ -203,11 +207,42 @@ def logout_admin(request):
     request.session.flush()
     return redirect('admin_login')
 
+def logout_student(request):
+    request.session.flush()
+    return redirect('student_login')
+
 def reg_admin(request):
     return render(request, 'admin_p/a-register.html')
 
 def login_student(request):
-    return render(request, 'student/s-login.html')
+    if request.method == 'POST':
+        username_or_email = request.POST.get('email-username')
+        password = request.POST.get('password')
+
+        # Query the faculty account
+        with connection.cursor() as cursor:
+            cursor.execute("""
+                SELECT u_id, username, hashed_password, first_name, last_name, middle_name, student_id  FROM student_accounts 
+                WHERE username = %s 
+            """, [username_or_email])
+            faculty = cursor.fetchone()
+
+        if faculty:
+            u_id, username, hashed_password, first_name, middle_name, last_name, student_id = faculty
+
+            # Assuming hashed_password is already hashed and we compare it with the derived hash of the entered password
+            if decrypt(hashed_password, passwordUnique) == password:  # This comparison should check the plain password, not a hash
+                request.session['student_id'] = u_id  # Store session
+                request.session['s_fullname'] = f"{first_name} {middle_name} {last_name}"  # Store session for a_fullname
+
+                messages.success(request, "Login successful!")
+                return redirect('s_dashboard')  # Change this to your admin dashboard view
+            else:
+                messages.error(request, "Invalid password!")
+        else:
+            messages.error(request, "User not found!")
+
+    return render(request, 'admin_p/a-login.html')
 
 def reg_student(request):
     return render(request, 'student/s-register.html')
@@ -258,4 +293,18 @@ def admin_folders(request):
 
 
 def student_folders(request):
-    return render(request, 'student/folders.html')
+    
+    student_id = request.session.get('student_id', None)
+    full_name = request.session.get('s_fullname', None)
+
+    # If there is no faculty_id in the session, redirect to the admin login page
+    if not student_id:
+        return redirect(reverse('student_login'))  # 'admin_login' should be the name of your login URL
+
+    # Pass the session data to the template
+    context = {
+        'faculty_id': student_id,
+        'full_name': full_name,
+    }
+
+    return render(request, 'student/folders.html', context)

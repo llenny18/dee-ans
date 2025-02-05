@@ -18,5 +18,6 @@ urlpatterns = [
     path('admin_folder/', views.admin_folders, name='admin_folder'),
     path('student_folder/', views.student_folders, name='student_folder'),
     path('admin_logout/', views.logout_admin, name='admin_logout'),
+    path('student_logout/', views.logout_student, name='student_logout'),
 
 ]
