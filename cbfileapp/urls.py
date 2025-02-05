@@ -5,6 +5,7 @@ urlpatterns = [
     path('', views.read_html, name=''),
     path('/', views.read_html, name='/'),
     path('s_dashboard', views.read_html_s, name='s_dashboard'),
+    path('a_dashboard', views.read_html, name='a_dashboard'),
     path('read-html/', views.read_html, name='read_html'),
     path('admin_logs/', views.admin_logs, name='admin_logs'),
     path('admin_accounts/', views.admin_accounts, name='admin_accounts'),
@@ -16,4 +17,6 @@ urlpatterns = [
     path('student_reg/', views.reg_student, name='student_reg'),
     path('admin_folder/', views.admin_folders, name='admin_folder'),
     path('student_folder/', views.student_folders, name='student_folder'),
+    path('admin_logout/', views.logout_admin, name='admin_logout'),
+
 ]
