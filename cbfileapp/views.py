@@ -15,6 +15,17 @@ import base64
 from django.db.models import Prefetch
 from django.shortcuts import redirect
 from django.urls import reverse
+from django.core.mail import send_mail
+
+
+def send_email():
+    subject = "Welcome to Django Mailer"
+    message = "Hello! This is a test email sent from Django."
+    from_email = "dece.nas.system@gmail.com"
+    recipient_list = ["ediwawkiki@gmail.com"]
+
+    send_mail(subject, message, from_email, recipient_list)
+    return "Email sent successfully!"
 
 def require_faculty_login(view_func):
     """
@@ -232,7 +243,7 @@ def login_student(request):
 
             # Assuming hashed_password is already hashed and we compare it with the derived hash of the entered password
             if decrypt(hashed_password, passwordUnique) == password:  # This comparison should check the plain password, not a hash
-                request.session['student_id'] = u_id  # Store session
+                request.session['student_id'] = student_id  # Store session
                 request.session['s_fullname'] = f"{first_name} {middle_name} {last_name}"  # Store session for a_fullname
 
                 messages.success(request, "Login successful!")
@@ -301,10 +312,31 @@ def student_folders(request):
     if not student_id:
         return redirect(reverse('student_login'))  # 'admin_login' should be the name of your login URL
 
-    # Pass the session data to the template
+    # Filter the data by faculty_id from the session
+    student_folders = StudentFolderView.objects.filter(sr_code=student_id) \
+        .values('unique_code', 'folder_name', 'description', 'apicode', 'faculty_gsuite', 'student_first_name', 'student_last_name')
+
+    # Group by unique_code for the folder
+    grouped_folders = {}
+    for folder in student_folders:
+        unique_code = folder['unique_code']
+        if unique_code not in grouped_folders:
+            grouped_folders[unique_code] = {
+                'folder_name': folder['folder_name'],
+                'description': folder['description'],
+                'apicode': folder['apicode'],
+                'faculty_gsuite': folder['faculty_gsuite'],
+                'students': []
+            }
+        # Append student details to the students list
+        student_name = f"{folder['student_first_name']} {folder['student_last_name']}"
+        grouped_folders[unique_code]['students'].append(student_name)
+
+    # Pass the session data and grouped folders to the template
     context = {
-        'faculty_id': student_id,
+        'student_id': student_id,
         'full_name': full_name,
+        'grouped_folders': grouped_folders
     }
 
     return render(request, 'student/folders.html', context)

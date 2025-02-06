@@ -7,7 +7,8 @@
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
     />
 
-    <title>Tabs and pills - UI elements | Sneat - Bootstrap 5 HTML Admin Template - Pro</title>
+    <title>DEENAS - File Folders</title>
+
 
     <meta name="description" content="" />
 
@@ -56,12 +57,12 @@
             <!-- Content -->
 
             <div class="container-xxl flex-grow-1 container-p-y">
-              <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Students / </span> File Folders</h4>
+              <h4 class="fw-bold py-3 mb-4"><span class="text-muted fw-light">Administrator / </span> File Folders {{ student_id }}</h4>
 
               <!-- Tabs -->
 
               <div class="row">
-               
+                {% for unique_code, folder in grouped_folders.items %}
                 <div class="col-xl-6">
                   
                   <div class="nav-align-top mb-4">
@@ -72,11 +73,11 @@
                           class="nav-link active"
                           role="tab"
                           data-bs-toggle="tab"
-                          data-bs-target="#navs-justified-home"
+                          data-bs-target="#navs-justified-home{{ unique_code }}"
                           aria-controls="navs-justified-home"
                           aria-selected="true"
                         >
-                          <i class="tf-icons bx bx-file"></i>Folder Code: DF23ASD
+                          <i class="tf-icons bx bx-file"></i>Folder Code: {{ folder.folder_name }}
                         </button>
                       </li>
                       <li class="nav-item">
@@ -85,7 +86,7 @@
                           class="nav-link"
                           role="tab"
                           data-bs-toggle="tab"
-                          data-bs-target="#navs-justified-profile"
+                          data-bs-target="#navs-justified-profile{{ unique_code }}"
                           aria-controls="navs-justified-profile"
                           aria-selected="false"
                         >
@@ -98,7 +99,7 @@
                           class="nav-link"
                           role="tab"
                           data-bs-toggle="tab"
-                          data-bs-target="#navs-justified-messages"
+                          data-bs-target="#navs-justified-messages{{ unique_code }}"
                           aria-controls="navs-justified-messages"
                           aria-selected="false"
                         >
@@ -107,44 +108,37 @@
                       </li>
                     </ul>
                     <div class="tab-content">
-                      <div class="tab-pane fade show active" id="navs-justified-home" role="tabpanel">
+                      <div class="tab-pane fade show active" id="navs-justified-home{{ unique_code }}" role="tabpanel">
+                        <button class="btn btn-success">Enter Folder</button>
+                        <hr>
                         <p>
-                          Icing pastry pudding oat cake. Lemon drops cotton candy caramels cake caramels sesame snaps
-                          powder. Bear claw candy topping.
+                          Unique Code:  {{ unique_code }}
+                          <br>
+                          TRUENAS API: {{ folder.apicode }}
                         </p>
                         <p class="mb-0">
-                          Tootsie roll fruitcake cookie. Dessert topping pie. Jujubes wafer carrot cake jelly. Bonbon
-                          jelly-o jelly-o ice cream jelly beans candy canes cake bonbon. Cookie jelly beans marshmallow
-                          jujubes sweet.
+                          {{ folder.description }}
                         </p>
                       </div>
-                      <div class="tab-pane fade" id="navs-justified-profile" role="tabpanel">
+                      <div class="tab-pane fade" id="navs-justified-profile{{ unique_code }}" role="tabpanel">
                         <p>
-                          Donut dragée jelly pie halvah. Danish gingerbread bonbon cookie wafer candy oat cake ice
-                          cream. Gummies halvah tootsie roll muffin biscuit icing dessert gingerbread. Pastry ice cream
-                          cheesecake fruitcake.
+                          {{ folder.faculty_gsuite }}
                         </p>
-                        <p class="mb-0">
-                          Jelly-o jelly beans icing pastry cake cake lemon drops. Muffin muffin pie tiramisu halvah
-                          cotton candy liquorice caramels.
-                        </p>
+                        
                       </div>
-                      <div class="tab-pane fade" id="navs-justified-messages" role="tabpanel">
+                      <div class="tab-pane fade" id="navs-justified-messages{{ unique_code }}" role="tabpanel">
                         <p>
-                          Oat cake chupa chups dragée donut toffee. Sweet cotton candy jelly beans macaroon gummies
-                          cupcake gummi bears cake chocolate.
+                          {% for student in folder.students %}
+                          <li>{{ student }}</li>
+                        {% endfor %}
                         </p>
-                        <p class="mb-0">
-                          Cake chocolate bar cotton candy apple pie tootsie roll ice cream apple pie brownie cake. Sweet
-                          roll icing sesame snaps caramels danish toffee. Brownie biscuit dessert dessert. Pudding jelly
-                          jelly-o tart brownie jelly.
-                        </p>
+                      
                       </div>
                     </div>
                   </div>
                 </div>
                 
-
+                {% endfor %}
               <!-- Pills -->
             </div>
             <!-- / Content -->

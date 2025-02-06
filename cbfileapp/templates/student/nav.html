@@ -14,13 +14,13 @@
 
     <ul class="menu-inner py-1">
       <!-- Dashboard -->
-      <li class="menu-item active">
+      <li class="menu-item  {% if request.path == '/s_dashboard' %}active{% endif %}">
         <a href="{% url 's_dashboard' %}" class="menu-link">
           <i class="menu-icon tf-icons bx bx-home-circle"></i>
           <div data-i18n="Analytics">Dashboard</div>
         </a>
       </li>
-      <li class="menu-item">
+      <li class="menu-item {% if request.path == '/student_folder/' %}active{% endif %}">
         <a href="{% url 'student_folder' %}" class="menu-link">
           <i class="menu-icon tf-icons bx bxs-file"></i>
           <div data-i18n="Analytics">File Folders</div>
