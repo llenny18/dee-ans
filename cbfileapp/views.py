@@ -253,7 +253,7 @@ def login_student(request):
         else:
             messages.error(request, "User not found!")
 
-    return render(request, 'admin_p/a-login.html')
+    return render(request, 'student/s-login.html')
 
 def reg_student(request):
     return render(request, 'student/s-register.html')

@@ -473,7 +473,7 @@
                 show: true,
                 fontSize: '0.8125rem',
                 color: axisColor,
-                label: 'Weekly',
+                label: 'by Students',
                 formatter: function (w) {
                   return '38%';
                 }
@@ -498,7 +498,7 @@
         }
       ],
       chart: {
-        height: 215,
+        height: 315,
         parentHeightOffset: 0,
         parentWidthOffset: 0,
         toolbar: {
@@ -617,7 +617,7 @@
             },
             value: {
               formatter: function (val) {
-                return '$' + parseInt(val);
+                return parseInt(val) + "%";
               },
               offsetY: 5,
               color: '#697a8d',
