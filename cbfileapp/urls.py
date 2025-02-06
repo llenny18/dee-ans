@@ -1,7 +1,9 @@
-from django.urls import path
+from django.urls import path, include 
 from . import views
+from captcha import urls as captcha_urls
 
 urlpatterns = [
+    path('captcha/', include(captcha_urls)),
     path('', views.read_html, name=''),
     path('/', views.read_html, name='/'),
     path('s_dashboard', views.read_html_s, name='s_dashboard'),

@@ -16,7 +16,7 @@ from django.db.models import Prefetch
 from django.shortcuts import redirect
 from django.urls import reverse
 from django.core.mail import send_mail
-
+from .forms import MyForm
 
 def send_email():
     subject = "Welcome to Django Mailer"
@@ -130,6 +130,10 @@ def login_admin(request):
 
 
 def read_html(request):
+    form = MyForm(request.POST or None)
+    if form.is_valid():
+        # Process form data
+        pass
     faculty_id = request.session.get('faculty_id', None)
     full_name = request.session.get('a_fullname', None)
 
@@ -137,6 +141,7 @@ def read_html(request):
     context = {
         'faculty_id': faculty_id,
         'full_name': full_name,
+        'form': form
     }
 
     return render(request, 'admin_p/index.html', context)
