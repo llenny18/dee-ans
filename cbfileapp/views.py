@@ -107,8 +107,8 @@ def login_admin(request):
         with connection.cursor() as cursor:
             cursor.execute("""
                 SELECT u_id, username, hashed_password  FROM user_account 
-                WHERE username = %s AND u_id = 0
-            """, [username_or_email])
+                WHERE username = %s AND u_id = 111111
+            """, username_or_email)
             faculty = cursor.fetchone()
 
         if faculty:
@@ -119,7 +119,7 @@ def login_admin(request):
                 request.session['admin_id'] = u_id  # Store session
                 request.session['username'] = username  # Store session for a_fullname
 
-                messages.success(request, "Login successful!")
+                messages.success(request, "Login Successfully!")
                 return redirect('a_dashboard')  # Change this to your admin dashboard view
             else:
                 messages.error(request, "Invalid password!")
@@ -162,12 +162,12 @@ def login_faculty(request):
 
 def read_html(request):
    
-    admin_id = request.session.get('admin__id', None)
+    admin_id = request.session.get('admin_id', None)
     full_name = request.session.get('a_fullname', None)
 
     # If there is no faculty_id in the session, redirect to the admin login page
     if not admin_id:
-        return redirect(reverse('faculty_login'))  # 'faculty_login' should be the name of your login URL
+        return redirect(reverse('admin_login'))  # 'faculty_login' should be the name of your login URL
 
 
     # Pass the session data to the template
@@ -218,7 +218,7 @@ def fetch_data(query):
 
 
 def admin_logs(request):
-    admin_id = request.session.get('admin__id', None)
+    admin_id = request.session.get('admin_id', None)
     full_name = request.session.get('a_fullname', None)
 
     # If there is no faculty_id in the session, redirect to the admin login page
@@ -229,7 +229,7 @@ def admin_logs(request):
     return render(request, 'admin_p/admin-logs.html', {'admin_id': admin_id, 'full_name': full_name,'data': data})
 
 def student_logs(request):
-    admin_id = request.session.get('admin__id', None)
+    admin_id = request.session.get('admin_id', None)
     full_name = request.session.get('a_fullname', None)
 
     # If there is no faculty_id in the session, redirect to the admin login page
@@ -239,10 +239,10 @@ def student_logs(request):
 
     data = StudentActivityLogs.objects.all()
 
-    return render(request, 'admin_p/student-logs.html', {'faculty_id': faculty_id, 'full_name': full_name,'data': data})
+    return render(request, 'admin_p/student-logs.html', {'admin_id': admin_id, 'full_name': full_name,'data': data})
 
 def admin_accounts(request):
-    admin_id = request.session.get('admin__id', None)
+    admin_id = request.session.get('admin_id', None)
     full_name = request.session.get('a_fullname', None)
 
     # If there is no faculty_id in the session, redirect to the admin login page
@@ -254,7 +254,7 @@ def admin_accounts(request):
     return render(request, 'admin_p/admin-accounts.html', {'admin_id': admin_id,'full_name': full_name,'data': data})
 
 def student_accounts(request):
-    admin_id = request.session.get('admin__id', None)
+    admin_id = request.session.get('admin_id', None)
     full_name = request.session.get('a_fullname', None)
 
     # If there is no faculty_id in the session, redirect to the admin login page
@@ -359,7 +359,7 @@ def reg_student(request):
 
 
 def admin_folders(request):
-    admin_id = request.session.get('admin__id', None)
+    admin_id = request.session.get('admin_id', None)
     full_name = request.session.get('a_fullname', None)
 
     # If there is no faculty_id in the session, redirect to the admin login page
