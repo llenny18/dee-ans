@@ -8,7 +8,8 @@
       content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0"
     />
 
-    <title>DEENAS - Student Login</title>
+    <title>DEENAS - Administrator Login</title>
+
 
     <meta name="description" content="" />
 
@@ -43,13 +44,6 @@
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="{% static 'assets/js/config.js' %}"></script>
-    <style>
-      .captcha{
-        width: 300px;
-        margin-left: 30px;
-      } 
-      
-    </style>
   </head>
 
   <body>
@@ -64,7 +58,7 @@
               <!-- Logo -->
              <img src="{% static 'assets/img/favicon/BatStateU-NEU-Logo.png' %}" style="width: 80%; margin: 40px;">
               <!-- /Logo -->
-              <h4 class="mb-2">Welcome to NAStech Drive: Student </h4>
+              <h4 class="mb-2">Welcome to NAStech Drive: Faculty </h4>
               <p class="mb-4">Please sign-in to your account and start managing your files</p>
 
               <form id="formAuthentication" class="mb-3" method="POST">
@@ -99,10 +93,7 @@
                     <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
                   </div>
                 </div>
-                <hr>
-                {% csrf_token %}
-                {{ form.as_p }}  <!-- This will include the CAPTCHA image -->
-            
+                
                 <div class="mb-3">
                   <button class="btn btn-primary d-grid w-100" type="submit">Sign in</button>
                 </div>
@@ -152,15 +143,5 @@
 
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js' %}"></script>
-    <script>
-      document.addEventListener("DOMContentLoaded", function() {
-        var captchaInput = document.getElementById("id_captcha_1");
-        if (captchaInput) {
-            captchaInput.classList.add("form-control");
-            captchaInput.setAttribute("placeholder", "Enter the CAPTCHA");
-        }
-    });
-  </script>
-    
   </body>
 </html>

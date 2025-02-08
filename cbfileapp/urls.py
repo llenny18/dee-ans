@@ -21,5 +21,9 @@ urlpatterns = [
     path('student_folder/', views.student_folders, name='student_folder'),
     path('admin_logout/', views.logout_admin, name='admin_logout'),
     path('student_logout/', views.logout_student, name='student_logout'),
+    path('faculty_login/', views.login_faculty, name='faculty_login'),
+    path('faculty_logout/', views.logout_faculty, name='faculty_logout'),
+    path('f_dashboard/', views.read_html_f, name='f_dashboard'),
+    path('faculty_folders/', views.faculty_folders, name='faculty_folders'),
 
 ]

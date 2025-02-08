@@ -42,6 +42,13 @@
     <!--! Template customizer & Theme config files MUST be included after core stylesheets and helpers.js in the <head> section -->
     <!--? Config:  Mandatory theme config file contain global vars & default theme options, Set your preferred theme option in this file.  -->
     <script src="{% static 'assets/js/config.js' %}"></script>
+    <style>
+      .captcha{
+        width: 300px;
+        margin-left: 30px;
+      } 
+      
+    </style>
   </head>
 
   <body>
@@ -59,61 +66,50 @@
               <h4 class="mb-2">Register now: NAStech Drive: Student</h4>
               <hr>
 
-              <form id="formAuthentication" class="mb-3" action="index.html" method="POST">
+              <form id="formAuthentication" class="mb-3" action="{% url 'student_reg' %}" method="POST">
+                {% csrf_token %}
                 
                 <div class="mb-3">
-                  <label for="email" class="form-label">First Name</label>
-                  <input type="text" class="form-control" id="email" name="email" placeholder="Enter your first name" />
+                  <label class="form-label">First Name</label>
+                  <input type="text" class="form-control" name="first_name" required placeholder="Enter your first name" />
                 </div>
+              
                 <div class="mb-3">
-                  <label for="email" class="form-label">Middle Name</label>
-                  <input type="text" class="form-control" id="email" name="email" placeholder="Enter your middle name" />
+                  <label class="form-label">Middle Name</label>
+                  <input type="text" class="form-control" name="middle_name" placeholder="Enter your middle name" />
                 </div>
+              
                 <div class="mb-3">
-                  <label for="email" class="form-label">Last Name</label>
-                  <input type="text" class="form-control" id="email" name="email" placeholder="Enter your last name" />
+                  <label class="form-label">Last Name</label>
+                  <input type="text" class="form-control" name="last_name" required placeholder="Enter your last name" />
                 </div>
+              
                 <div class="mb-3">
-                  <label for="email" class="form-label">SR Code</label>
-                  <input type="text" class="form-control" id="email" name="email" placeholder="Enter your SR Code" />
+                  <label class="form-label">SR Code</label>
+                  <input type="text" class="form-control" name="sr_code" required placeholder="Enter your SR Code" />
                 </div>
+              
                 <div class="mb-3">
-                  <label for="username" class="form-label">Username</label>
-                  <input
-                    type="text"
-                    class="form-control"
-                    id="username"
-                    name="username"
-                    placeholder="Enter your username"
-                    autofocus
-                  />
+                  <label class="form-label">Username</label>
+                  <input type="text" class="form-control" name="username" required placeholder="Enter your username" />
                 </div>
+              
                 <div class="mb-3 form-password-toggle">
-                  <label class="form-label" for="password">Password</label>
+                  <label class="form-label">Password</label>
                   <div class="input-group input-group-merge">
-                    <input
-                      type="password"
-                      id="password"
-                      class="form-control"
-                      name="password"
-                      placeholder="&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;&#xb7;"
-                      aria-describedby="password"
-                    />
+                    <input type="password" class="form-control" name="password" required placeholder="********" />
                     <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
                   </div>
                 </div>
-
+                <hr>
+                {% csrf_token %}
+                {{ form.as_p }}  <!-- This will include the CAPTCHA image -->
+            
                 <div class="mb-3">
-                  <div class="form-check">
-                    <input class="form-check-input" type="checkbox" id="terms-conditions" name="terms" />
-                    <label class="form-check-label" for="terms-conditions">
-                      I agree to
-                      <a href="javascript:void(0);">privacy policy & terms</a>
-                    </label>
-                  </div>
+                  <button class="btn btn-primary d-grid w-100" type="submit">Sign up</button>
                 </div>
-                <button class="btn btn-primary d-grid w-100">Sign up</button>
               </form>
+              
 
               <p class="text-center">
                 <span>Already have an account?</span>
@@ -151,5 +147,15 @@
 
     <!-- Place this tag in your head or just before your close body tag. -->
     <script async defer src="https://buttons.github.io/buttons.js' %}"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        var captchaInput = document.getElementById("id_captcha_1");
+        if (captchaInput) {
+            captchaInput.classList.add("form-control");
+            captchaInput.setAttribute("placeholder", "Enter the CAPTCHA");
+        }
+    });
+  </script>
+    
   </body>
 </html>

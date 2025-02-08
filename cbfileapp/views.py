@@ -106,8 +106,40 @@ def login_admin(request):
         # Query the faculty account
         with connection.cursor() as cursor:
             cursor.execute("""
+                SELECT u_id, username, hashed_password  FROM user_account 
+                WHERE username = %s AND u_id = 0
+            """, [username_or_email])
+            faculty = cursor.fetchone()
+
+        if faculty:
+            u_id, username, hashed_password = faculty
+
+            # Assuming hashed_password is already hashed and we compare it with the derived hash of the entered password
+            if decrypt(hashed_password, passwordUnique) == password:  # This comparison should check the plain password, not a hash
+                request.session['admin_id'] = u_id  # Store session
+                request.session['username'] = username  # Store session for a_fullname
+
+                messages.success(request, "Login successful!")
+                return redirect('a_dashboard')  # Change this to your admin dashboard view
+            else:
+                messages.error(request, "Invalid password!")
+        else:
+            messages.error(request, "User not found!")
+
+    return render(request, 'admin_p/a-login.html')
+
+
+# login_admin function
+def login_faculty(request):
+    if request.method == 'POST':
+        username_or_email = request.POST.get('email-username')
+        password = request.POST.get('password')
+
+        # Query the faculty account
+        with connection.cursor() as cursor:
+            cursor.execute("""
                 SELECT u_id, username, hashed_password, first_name, last_name, middle_name, faculty_id  FROM faculty_accounts 
-                WHERE username = %s OR gsuite = %s
+                WHERE (username = %s OR gsuite = %s )
             """, [username_or_email, username_or_email])
             faculty = cursor.fetchone()
 
@@ -120,31 +152,46 @@ def login_admin(request):
                 request.session['a_fullname'] = f"{first_name} {middle_name} {last_name}"  # Store session for a_fullname
 
                 messages.success(request, "Login successful!")
-                return redirect('a_dashboard')  # Change this to your admin dashboard view
+                return redirect('f_dashboard')  # Change this to your admin dashboard view
             else:
                 messages.error(request, "Invalid password!")
         else:
             messages.error(request, "User not found!")
 
-    return render(request, 'admin_p/a-login.html')
-
+    return render(request, 'faculty/a-login.html')
 
 def read_html(request):
-    form = MyForm(request.POST or None)
-    if form.is_valid():
-        # Process form data
-        pass
+   
+    admin_id = request.session.get('admin__id', None)
+    full_name = request.session.get('a_fullname', None)
+
+    # If there is no faculty_id in the session, redirect to the admin login page
+    if not admin_id:
+        return redirect(reverse('faculty_login'))  # 'faculty_login' should be the name of your login URL
+
+
+    # Pass the session data to the template
+    context = {
+        'admin_id': admin_id,
+        'full_name': full_name
+      
+    }
+
+    return render(request, 'admin_p/index.html', context)
+
+def read_html_f(request):
+   
     faculty_id = request.session.get('faculty_id', None)
     full_name = request.session.get('a_fullname', None)
 
     # Pass the session data to the template
     context = {
         'faculty_id': faculty_id,
-        'full_name': full_name,
-        'form': form
+        'full_name': full_name
+      
     }
 
-    return render(request, 'admin_p/index.html', context)
+    return render(request, 'faculty/index.html', context)
 
 def read_html_s(request):
     student_id = request.session.get('student_id', None)
@@ -171,24 +218,23 @@ def fetch_data(query):
 
 
 def admin_logs(request):
-    
-    faculty_id = request.session.get('faculty_id', None)
+    admin_id = request.session.get('admin__id', None)
     full_name = request.session.get('a_fullname', None)
-    
+
     # If there is no faculty_id in the session, redirect to the admin login page
-    if not faculty_id:
-        return redirect(reverse('admin_login'))  # 'admin_login' should be the name of your login URL
+    if not admin_id:
+        return redirect(reverse('faculty_login'))  # 'faculty_login' should be the name of your login URL
 
     data = FacultyAdminLogs.objects.all()
-    return render(request, 'admin_p/admin-logs.html', {'faculty_id': faculty_id, 'full_name': full_name,'data': data})
+    return render(request, 'admin_p/admin-logs.html', {'admin_id': admin_id, 'full_name': full_name,'data': data})
 
 def student_logs(request):
-    faculty_id = request.session.get('faculty_id', None)
+    admin_id = request.session.get('admin__id', None)
     full_name = request.session.get('a_fullname', None)
-    
+
     # If there is no faculty_id in the session, redirect to the admin login page
-    if not faculty_id:
-        return redirect(reverse('admin_login'))  # 'admin_login' should be the name of your login URL
+    if not admin_id:
+        return redirect(reverse('faculty_login'))  # 'faculty_login' should be the name of your login URL
 
 
     data = StudentActivityLogs.objects.all()
@@ -196,32 +242,35 @@ def student_logs(request):
     return render(request, 'admin_p/student-logs.html', {'faculty_id': faculty_id, 'full_name': full_name,'data': data})
 
 def admin_accounts(request):
-    faculty_id = request.session.get('faculty_id', None)
+    admin_id = request.session.get('admin__id', None)
     full_name = request.session.get('a_fullname', None)
-    
+
     # If there is no faculty_id in the session, redirect to the admin login page
-    if not faculty_id:
-        return redirect(reverse('admin_login'))  # 'admin_login' should be the name of your login URL
+    if not admin_id:
+        return redirect(reverse('faculty_login'))  # 'faculty_login' should be the name of your login URL
 
 
     data = FacultyAccount.objects.all()
-    return render(request, 'admin_p/admin-accounts.html', {'faculty_id': faculty_id, 'full_name': full_name,'data': data})
+    return render(request, 'admin_p/admin-accounts.html', {'admin_id': admin_id,'full_name': full_name,'data': data})
 
 def student_accounts(request):
-    faculty_id = request.session.get('faculty_id', None)
+    admin_id = request.session.get('admin__id', None)
     full_name = request.session.get('a_fullname', None)
-    
-    # If there is no faculty_id in the session, redirect to the admin login page
-    if not faculty_id:
-        return redirect(reverse('admin_login'))  # 'admin_login' should be the name of your login URL
 
+    # If there is no faculty_id in the session, redirect to the admin login page
+    if not admin_id:
+        return redirect(reverse('faculty_login'))  # 'faculty_login' should be the name of your login URL
 
     data = StudentAccount.objects.all()
-    return render(request, 'admin_p/student-accounts.html', {'faculty_id': faculty_id, 'full_name': full_name,'data': data})
+    return render(request, 'admin_p/student-accounts.html', {'admin_id': admin_id, 'full_name': full_name,'data': data})
 
 def logout_admin(request):
     request.session.flush()
     return redirect('admin_login')
+
+def logout_faculty(request):
+    request.session.flush()
+    return redirect('faculty_login')
 
 def logout_student(request):
     request.session.flush()
@@ -231,52 +280,134 @@ def reg_admin(request):
     return render(request, 'admin_p/a-register.html')
 
 def login_student(request):
+    form = MyForm(request.POST or None)
+
     if request.method == 'POST':
-        username_or_email = request.POST.get('email-username')
-        password = request.POST.get('password')
+        # Validate CAPTCHA first
+        if form.is_valid():
+            username_or_email = request.POST.get('email-username')
+            password = request.POST.get('password')
 
-        # Query the faculty account
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT u_id, username, hashed_password, first_name, last_name, middle_name, student_id  FROM student_accounts 
-                WHERE username = %s 
-            """, [username_or_email])
-            faculty = cursor.fetchone()
+            # Query the faculty account
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT u_id, username, hashed_password, first_name, last_name, middle_name, student_id  
+                    FROM student_accounts 
+                    WHERE username = %s 
+                """, [username_or_email])
+                faculty = cursor.fetchone()
 
-        if faculty:
-            u_id, username, hashed_password, first_name, middle_name, last_name, student_id = faculty
+            if faculty:
+                u_id, username, hashed_password, first_name, middle_name, last_name, student_id = faculty
 
-            # Assuming hashed_password is already hashed and we compare it with the derived hash of the entered password
-            if decrypt(hashed_password, passwordUnique) == password:  # This comparison should check the plain password, not a hash
-                request.session['student_id'] = student_id  # Store session
-                request.session['s_fullname'] = f"{first_name} {middle_name} {last_name}"  # Store session for a_fullname
+                # Check password
+                if decrypt(hashed_password, passwordUnique) == password:  
+                    request.session['student_id'] = student_id  
+                    request.session['s_fullname'] = f"{first_name} {middle_name} {last_name}"
 
-                messages.success(request, "Login successful!")
-                return redirect('s_dashboard')  # Change this to your admin dashboard view
+                    messages.success(request, "Login successful!")
+                    return redirect('s_dashboard')
+                else:
+                    messages.error(request, "Invalid password!")
             else:
-                messages.error(request, "Invalid password!")
+                messages.error(request, "User not found!")
         else:
-            messages.error(request, "User not found!")
+            messages.error(request, "Invalid CAPTCHA! Please try again.")  # CAPTCHA failed
 
-    return render(request, 'student/s-login.html')
+    context = {'form': form}
+    return render(request, 'student/s-login.html', context)
 
 def reg_student(request):
-    return render(request, 'student/s-register.html')
+    form = MyForm(request.POST or None)
+
+    if request.method == 'POST':
+        # Validate CAPTCHA first
+        if form.is_valid():
+            first_name = request.POST.get("first_name")
+            middle_name = request.POST.get("middle_name")
+            last_name = request.POST.get("last_name")
+            sr_code = request.POST.get("sr_code")
+            username = request.POST.get("username")
+            password = request.POST.get("password")
+            
+            hashed_password = encrypt(password, passwordUnique) # Hash the password before storing
+
+            try:
+                with connection.cursor() as cursor:
+                    # Insert into student_info table
+                    cursor.execute(
+                        "INSERT INTO student_info (sr_code, g_email, first_name, middle_name, last_name) VALUES (%s, %s, %s, %s, %s)",
+                        (sr_code, f"{sr_code}@g.batstate-u.edu.ph", first_name, middle_name, last_name),
+                    )
+
+                    # Insert into user_account table
+                    cursor.execute(
+                        "INSERT INTO user_account (username, hashed_password, student_id, email_verified) VALUES (%s, %s, %s, %s)",
+                        (username, hashed_password, sr_code, 'no'),
+                    )
+
+                messages.success(request, "Registration successful! Please verify your email.")
+                return redirect("student_login")  # Redirect to login page after successful registration
+
+            except Exception as e:
+                messages.error(request, f"Error: {e}")
+                
+    context = {'form': form}
+
+    return render(request, "student/s-register.html", context)
+
 
 
 def admin_folders(request):
+    admin_id = request.session.get('admin__id', None)
+    full_name = request.session.get('a_fullname', None)
+
+    # If there is no faculty_id in the session, redirect to the admin login page
+    if not admin_id:
+        return redirect(reverse('faculty_login'))  # 'faculty_login' should be the name of your login URL
+
+    # Retrieve all student folders without filtering by faculty_id
+    student_folders = StudentFolderView.objects.all()
+
+    # Group by unique_code for the folder
+    grouped_folders = {}
+    for folder in student_folders:
+        unique_code = folder.unique_code
+        if unique_code not in grouped_folders:
+            grouped_folders[unique_code] = {
+                'folder_name': folder.folder_name,
+                'description': folder.description,
+                'apicode': folder.apicode,
+                'faculty_gsuite': folder.faculty_gsuite,
+                'students': []
+            }
+        # Append student details to the students list
+        student_name = f"{folder.student_first_name} {folder.student_last_name}"
+        grouped_folders[unique_code]['students'].append(student_name)
+
+    # Pass the session data and grouped folders to the template
+    context = {
+        'admin_id': admin_id,
+        'full_name': full_name,
+        'grouped_folders': grouped_folders
+    }
+
+    return render(request, 'admin_p/folders.html', context)
+
+
+def faculty_folders(request):
     faculty_id = request.session.get('faculty_id', None)
     full_name = request.session.get('a_fullname', None)
     
     # If there is no faculty_id in the session, redirect to the admin login page
     if not faculty_id:
-        return redirect(reverse('admin_login'))  # 'admin_login' should be the name of your login URL
+        return redirect(reverse('faculty_login'))  # 'admin_login' should be the name of your login URL
 
 
     # Check if faculty_id is available
     if not faculty_id:
         # Handle case when faculty_id is not found in the session
-        return render(request, 'admin_p/folders.html', {'error': 'Faculty ID not found in session'})
+        return render(request, 'faculty/folders.html', {'error': 'Faculty ID not found in session'})
 
     # Filter the data by faculty_id from the session
     student_folders = StudentFolderView.objects.filter(faculty_id=faculty_id) \
@@ -305,7 +436,7 @@ def admin_folders(request):
         'grouped_folders': grouped_folders
     }
 
-    return render(request, 'admin_p/folders.html', context)
+    return render(request, 'faculty/folders.html', context)
 
 
 def student_folders(request):

@@ -98,7 +98,14 @@
                   <button class="btn btn-primary d-grid w-100" type="submit">Sign in</button>
                 </div>
               </form>
-              
+              {% if messages %}
+    <div class="alert alert-danger">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
 
               <p class="text-center">
                 <span>New on our platform?</span>

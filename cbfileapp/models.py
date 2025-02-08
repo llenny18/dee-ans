@@ -11,6 +11,7 @@ class FacultyInfo(models.Model):
 class StudentInfo(models.Model):
     sr_code = models.CharField(max_length=10, primary_key=True)
     first_name = models.CharField(max_length=50)
+    g_email = models.EmailField(unique=True)
     middle_name = models.CharField(max_length=50, blank=True, null=True)
     last_name = models.CharField(max_length=50)
     class Meta:
