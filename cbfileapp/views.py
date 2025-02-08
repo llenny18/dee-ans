@@ -99,66 +99,76 @@ passwordUnique = "hashedpassword143"
 
 # login_admin function
 def login_admin(request):
+    form = MyForm(request.POST or None)
+
     if request.method == 'POST':
-        username_or_email = request.POST.get('email-username')
-        password = request.POST.get('password')
+        # Validate CAPTCHA first
+        if form.is_valid():
+            username_or_email = request.POST.get('email-username')
+            password = request.POST.get('password')
 
-        # Query the faculty account
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT u_id, username, hashed_password  FROM user_account 
-                WHERE username = %s AND u_id = 111111
-            """, username_or_email)
-            faculty = cursor.fetchone()
+            # Query the faculty account
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT u_id, username, hashed_password  FROM user_account 
+                    WHERE username = %s AND u_id = 111111
+                """, username_or_email)
+                faculty = cursor.fetchone()
 
-        if faculty:
-            u_id, username, hashed_password = faculty
+            if faculty:
+                u_id, username, hashed_password = faculty
 
-            # Assuming hashed_password is already hashed and we compare it with the derived hash of the entered password
-            if decrypt(hashed_password, passwordUnique) == password:  # This comparison should check the plain password, not a hash
-                request.session['admin_id'] = u_id  # Store session
-                request.session['username'] = username  # Store session for a_fullname
+                # Assuming hashed_password is already hashed and we compare it with the derived hash of the entered password
+                if decrypt(hashed_password, passwordUnique) == password:  # This comparison should check the plain password, not a hash
+                    request.session['admin_id'] = u_id  # Store session
+                    request.session['username'] = username  # Store session for a_fullname
 
-                messages.success(request, "Login Successfully!")
-                return redirect('a_dashboard')  # Change this to your admin dashboard view
+                    messages.success(request, "Login Successfully!")
+                    return redirect('a_dashboard')  # Change this to your admin dashboard view
+                else:
+                    messages.error(request, "Invalid password!")
             else:
-                messages.error(request, "Invalid password!")
-        else:
-            messages.error(request, "User not found!")
+                messages.error(request, "User not found!")
 
-    return render(request, 'admin_p/a-login.html')
+    context = {'form': form}
+    return render(request, 'admin_p/a-login.html', context)
 
 
 # login_admin function
 def login_faculty(request):
+    form = MyForm(request.POST or None)
+
     if request.method == 'POST':
-        username_or_email = request.POST.get('email-username')
-        password = request.POST.get('password')
+        # Validate CAPTCHA first
+        if form.is_valid():
+            username_or_email = request.POST.get('email-username')
+            password = request.POST.get('password')
 
-        # Query the faculty account
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                SELECT u_id, username, hashed_password, first_name, last_name, middle_name, faculty_id  FROM faculty_accounts 
-                WHERE (username = %s OR gsuite = %s )
-            """, [username_or_email, username_or_email])
-            faculty = cursor.fetchone()
+            # Query the faculty account
+            with connection.cursor() as cursor:
+                cursor.execute("""
+                    SELECT u_id, username, hashed_password, first_name, last_name, middle_name, faculty_id  FROM faculty_accounts 
+                    WHERE (username = %s OR gsuite = %s )
+                """, [username_or_email, username_or_email])
+                faculty = cursor.fetchone()
 
-        if faculty:
-            u_id, username, hashed_password, first_name, middle_name, last_name, faculty_id = faculty
+            if faculty:
+                u_id, username, hashed_password, first_name, middle_name, last_name, faculty_id = faculty
 
-            # Assuming hashed_password is already hashed and we compare it with the derived hash of the entered password
-            if decrypt(hashed_password, passwordUnique) == password:  # This comparison should check the plain password, not a hash
-                request.session['faculty_id'] = u_id  # Store session
-                request.session['a_fullname'] = f"{first_name} {middle_name} {last_name}"  # Store session for a_fullname
+                # Assuming hashed_password is already hashed and we compare it with the derived hash of the entered password
+                if decrypt(hashed_password, passwordUnique) == password:  # This comparison should check the plain password, not a hash
+                    request.session['faculty_id'] = u_id  # Store session
+                    request.session['a_fullname'] = f"{first_name} {middle_name} {last_name}"  # Store session for a_fullname
 
-                messages.success(request, "Login successful!")
-                return redirect('f_dashboard')  # Change this to your admin dashboard view
+                    messages.success(request, "Login successful!")
+                    return redirect('f_dashboard')  # Change this to your admin dashboard view
+                else:
+                    messages.error(request, "Invalid password!")
             else:
-                messages.error(request, "Invalid password!")
-        else:
-            messages.error(request, "User not found!")
+                messages.error(request, "User not found!")
 
-    return render(request, 'faculty/a-login.html')
+    context = {'form': form}
+    return render(request, 'faculty/a-login.html', context)
 
 def read_html(request):
    
