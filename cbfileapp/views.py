@@ -155,7 +155,7 @@ def login_faculty(request):
             with connection.cursor() as cursor:
                 cursor.execute("""
                     SELECT u_id, username, hashed_password, first_name, last_name, middle_name, faculty_id  FROM faculty_accounts 
-                    WHERE (username = %s OR gsuite = %s )
+                    WHERE username = %s OR gsuite = %s 
                 """, [username_or_email, username_or_email])
                 faculty = cursor.fetchone()
 
