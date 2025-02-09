@@ -4,7 +4,7 @@ from django.contrib.auth import login
 from django.contrib import messages
 from django.db import connection
 from django.contrib.auth.hashers import check_password
-from .models import FacultyAccount, StudentFolderView, AdminLogs, FacultyAdminLogs, StudentActivityLogs, StudentAccount, UserAccount
+from .models import FacultyAccount, StudentFolderView, AdminLogs, FacultyAdminLogs, StudentActivityLogs, StudentAccount, UserAccount,FolderTns, FacultyFoldersView
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
@@ -19,6 +19,7 @@ from .forms import MyForm
 import random
 import datetime
 from django.utils.timezone import now
+from django.utils.crypto import get_random_string
 
 def generate_otp():
     """Generate a 6-digit OTP"""
@@ -414,26 +415,45 @@ def admin_folders(request):
 
     return render(request, 'admin_p/folders.html', context)
 
+from django.db.models import Q, OuterRef, Subquery, Exists
 
 def faculty_folders(request):
     faculty_id = request.session.get('faculty_id', None)
     full_name = request.session.get('a_fullname', None)
-    
-    # If there is no faculty_id in the session, redirect to the admin login page
+
     if not faculty_id:
-        return redirect(reverse('faculty_login'))  # 'admin_login' should be the name of your login URL
+        return redirect(reverse('faculty_login'))  
 
+    # Handle Folder Creation
+    if request.method == "POST":
+        folder_name = request.POST.get('folder_name', '').strip()
+        description = request.POST.get('description', '').strip()
+        apicode = request.POST.get('apicode', '').strip()
 
-    # Check if faculty_id is available
-    if not faculty_id:
-        # Handle case when faculty_id is not found in the session
-        return render(request, 'faculty/folders.html', {'error': 'Faculty ID not found in session'})
+        if folder_name and description and apicode:
+            unique_code = get_random_string(10)  # Generate a unique code
 
-    # Filter the data by faculty_id from the session
-    student_folders = StudentFolderView.objects.filter(faculty_id=faculty_id) \
-        .values('unique_code', 'folder_name', 'description', 'apicode', 'faculty_gsuite', 'student_first_name', 'student_last_name')
+            FolderTns.objects.create(
+                folder_name=folder_name,
+                description=description,
+                unique_code=unique_code,
+                apicode=apicode,
+                faculty_id=faculty_id
+            )
 
-    # Group by unique_code for the folder
+            messages.success(request, "Folder created successfully!")
+            return redirect('faculty_folders')  # Redirect to refresh the page
+
+        else:
+            messages.error(request, "All fields are required!")
+
+    # Fetch folders linked to students
+    student_folders = StudentFolderView.objects.filter(faculty_id=faculty_id).values(
+        'unique_code', 'folder_name', 'description', 'apicode', 'faculty_gsuite', 
+        'student_first_name', 'student_last_name'
+    )
+
+    # Group student-associated folders
     grouped_folders = {}
     for folder in student_folders:
         unique_code = folder['unique_code']
@@ -445,18 +465,31 @@ def faculty_folders(request):
                 'faculty_gsuite': folder['faculty_gsuite'],
                 'students': []
             }
-        # Append student details to the students list
         student_name = f"{folder['student_first_name']} {folder['student_last_name']}"
         grouped_folders[unique_code]['students'].append(student_name)
 
-    # Pass the session data and grouped folders to the template
+    # Fetch folders with no associated students
+    student_folders_subquery = StudentFolderView.objects.filter(
+        faculty_id=faculty_id, unique_code=OuterRef('unique_code')
+    ).values('unique_code')
+
+    empty_folders = FacultyFoldersView.objects.filter(
+        faculty_id=faculty_id
+    ).exclude(
+        unique_code__in=Subquery(student_folders_subquery)
+    ).values('unique_code', 'folder_name', 'description', 'apicode', 'faculty_email')
+
+
     context = {
         'faculty_id': faculty_id,
         'full_name': full_name,
-        'grouped_folders': grouped_folders
+        'grouped_folders': grouped_folders,
+        'empty_folders': empty_folders,  # Pass folders without students
     }
 
     return render(request, 'faculty/folders.html', context)
+
+
 
 
 def student_folders(request):

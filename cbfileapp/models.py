@@ -145,9 +145,33 @@ class StudentFolderView(models.Model):
     def __str__(self):
         return f"{self.student_first_name} {self.student_last_name} - {self.folder_name}"
 
+
+
+class FacultyFoldersView(models.Model):
+    u_id = models.IntegerField()
+    username = models.CharField(max_length=50)
+    faculty_id = models.IntegerField(null=True, blank=True)
+    faculty_first_name = models.CharField(max_length=50, null=True, blank=True)
+    faculty_last_name = models.CharField(max_length=50, null=True, blank=True)
+    faculty_email = models.EmailField(max_length=100, null=True, blank=True)
+    student_id = models.CharField(max_length=10, null=True, blank=True)
+    email_verified = models.CharField(max_length=3, choices=[('no', 'No'), ('yes', 'Yes')])
+    folder_id = models.IntegerField()
+    folder_name = models.CharField(max_length=255)
+    description = models.CharField(max_length=455)
+    unique_code = models.CharField(max_length=255)
+    apicode = models.CharField(max_length=255)
+    created_at = models.DateTimeField()
+
+    class Meta:
+        managed = False
+        db_table = 'faculty_folders'
+        
+        
 class FolderTns(models.Model):
     folder_name = models.CharField(max_length=255)
     unique_code = models.CharField(max_length=255, unique=True)
+    description = models.CharField(max_length=455, unique=True)
     apicode = models.CharField(max_length=255)
     faculty_id = models.IntegerField()
     created_at = models.DateTimeField(auto_now_add=True)
