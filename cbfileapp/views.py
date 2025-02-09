@@ -4,7 +4,7 @@ from django.contrib.auth import login
 from django.contrib import messages
 from django.db import connection
 from django.contrib.auth.hashers import check_password
-from .models import FacultyAccount, StudentFolderView, AdminLogs, FacultyAdminLogs, StudentActivityLogs, StudentAccount, UserAccount,FolderTns, FacultyFoldersView, StudentFolder
+from .models import FacultyAccount, StudentFolderView, AdminLogs, FacultyAdminLogs, StudentActivityLogs, StudentAccount, UserAccount,FolderTns, FacultyFoldersView, StudentFolder, FolderFile
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
@@ -227,6 +227,84 @@ def read_html_s(request):
     }
 
     return render(request, 'student/index.html', context)
+
+def view_folder_s(request, folder_code):
+    student_id = request.session.get('student_id', None)
+    full_name = request.session.get('s_fullname', None)
+
+    # If there is no student_id in the session, redirect to the student login page
+    if not student_id:
+        return redirect(reverse('student_login'))
+
+    # Fetch all files for the given folder_code
+    folder_files = FolderFile.objects.filter(folder_code=folder_code)
+
+    if request.method == 'POST':
+        # Handle the file upload form submission
+        file_name = request.POST.get('file_name')
+        file_description = request.POST.get('file_description')
+        file_link = request.POST.get('file_link')
+
+        if file_name and file_link:
+            # Create a new FolderFile instance and save it
+            new_file = FolderFile(
+                folder_code=folder_code,
+                file_name=file_name,
+                file_description=file_description,
+                file_link=file_link
+            )
+            new_file.save()
+            return redirect('view_folder_s', folder_code=folder_code)  # Redirect to the same folder view after upload
+
+    # Pass the session data and the folder files to the template
+    context = {
+        'faculty_id': student_id,
+        'full_name': full_name,
+        'folder_files': folder_files,
+        'folder_code': folder_code,
+    }
+
+    return render(request, 'student/folder_contents.html', context)
+
+
+
+def view_folder_f(request, folder_code):
+    faculty_id = request.session.get('faculty_id', None)
+    full_name = request.session.get('a_fullname', None)
+
+    # If there is no student_id in the session, redirect to the student login page
+    if not faculty_id:
+        return redirect(reverse('faculty_login'))
+
+    # Fetch all files for the given folder_code
+    folder_files = FolderFile.objects.filter(folder_code=folder_code)
+
+    if request.method == 'POST':
+        # Handle the file upload form submission
+        file_name = request.POST.get('file_name')
+        file_description = request.POST.get('file_description')
+        file_link = request.POST.get('file_link')
+
+        if file_name and file_link:
+            # Create a new FolderFile instance and save it
+            new_file = FolderFile(
+                folder_code=folder_code,
+                file_name=file_name,
+                file_description=file_description,
+                file_link=file_link
+            )
+            new_file.save()
+            return redirect('view_folder_f', folder_code=folder_code)  # Redirect to the same folder view after upload
+
+    # Pass the session data and the folder files to the template
+    context = {
+        'faculty_id': faculty_id,
+        'full_name': full_name,
+        'folder_files': folder_files,
+        'folder_code': folder_code,
+    }
+
+    return render(request, 'faculty/folder_contents.html', context)
 
 
 def fetch_data(query):

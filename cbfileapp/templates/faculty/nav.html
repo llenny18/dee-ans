@@ -20,7 +20,7 @@
           <div data-i18n="Analytics">Dashboard</div>
         </a>
       </li>
-      <li class="menu-item {% if request.path == '/faculty_folders/' %}active{% endif %}">
+      <li class="menu-item {% if request.path == '/faculty_folders/'  or request.path == '/view_folder_f/' %}active{% endif %}">
         <a href="{% url 'faculty_folders' %}" class="menu-link">
           <i class="menu-icon tf-icons bx bxs-file"></i>
           <div data-i18n="Analytics">File Folders</div>

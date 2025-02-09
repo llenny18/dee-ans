@@ -109,6 +109,22 @@ class StudentAccount(models.Model):
         managed = False
         db_table = 'student_accounts'
 
+
+
+class FolderFile(models.Model):
+    file_id = models.AutoField(primary_key=True)
+    folder_code = models.CharField(max_length=255)
+    file_name = models.CharField(max_length=255)
+    file_description = models.TextField(null=True, blank=True)
+    file_link = models.CharField(max_length=255)
+
+    class Meta:
+        db_table = 'folder_files'  # The table name in MySQL
+        managed = False  # Set to False if you don't want Django to manage the database table
+
+    def __str__(self):
+        return f"{self.file_name} in folder {self.folder_code}"
+
 class StudentFolder(models.Model):
     student_id = models.CharField(max_length=255)
     folder = models.ForeignKey('FolderTns', on_delete=models.CASCADE)

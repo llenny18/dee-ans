@@ -160,7 +160,7 @@
                     </ul>
                     <div class="tab-content">
                       <div class="tab-pane fade show active" id="navs-justified-home{{ unique_code }}" role="tabpanel">
-                        <button class="btn btn-success">Enter Folder</button>
+                        <a class="btn btn-success" href="{% url 'view_folder_f' folder_code=unique_code %}">Enter Folder</a>
                         <hr>
                         <p>
                           Unique Code:  {{ unique_code }}
@@ -239,7 +239,7 @@
                     </ul>
                     <div class="tab-content">
                       <div class="tab-pane fade show active" id="navs-justified-home{{ folder.unique_code }}" role="tabpanel">
-                        <button class="btn btn-success">Enter Folder</button>
+                        <a class="btn btn-success" href="{% url 'view_folder_f' folder_code=folder.unique_code %}">Enter Folder</a>
                         <hr>
                         <p>
                           Unique Code:  {{ folder.unique_code }}
