@@ -64,16 +64,16 @@
               <!-- Logo -->
              <img src="{% static 'assets/img/favicon/BatStateU-NEU-Logo.png' %}" style="width: 80%; margin: 40px;">
               <!-- /Logo -->
-              <h4 class="mb-2">Welcome to NAStech Drive: Student </h4>
-              <p class="mb-4">Please sign-in to your account and start managing your files</p>
+              <h4 class="mb-2">Verify Your Email Here </h4>
 
-              <form id="formAuthentication" class="mb-3" method="POST">
+              <form id="formAuthentication" class="mb-3" action="{% url 'verify_otp' %}" method="POST">
                 {% csrf_token %}
                 <div class="mb-3">
-                  <label for="email" class="form-label">Email or Username</label>
+                  <label for="email" class="form-label">Email</label>
                   <input
                     type="text"
                     class="form-control"
+                      value="{{ student_email }}"
                     id="email"
                     name="email-username"
                     placeholder="Enter your email or username"
@@ -82,18 +82,16 @@
                 </div>
                 <div class="mb-3 form-password-toggle">
                   <div class="d-flex justify-content-between">
-                    <label class="form-label" for="password">Password</label>
-                    <a href="#">
-                      <small>Forgot Password?</small>
-                    </a>
+                    <label class="form-label" for="password">OTP (One-Time Password)</label>
+                  
                   </div>
                   <div class="input-group input-group-merge">
                     <input
-                      type="password"
+                      type="text"
                       id="password"
                       class="form-control"
-                      name="password"
-                      placeholder="••••••••"
+                      name="otp"
+                      placeholder="------"
                       required
                     />
                     <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
@@ -104,7 +102,7 @@
                 {{ form.as_p }}  <!-- This will include the CAPTCHA image -->
             
                 <div class="mb-3">
-                  <button class="btn btn-primary d-grid w-100" type="submit">Sign in</button>
+                  <button class="btn btn-primary d-grid w-100" type="submit">Verify</button>
                 </div>
               </form>
               {% if messages %}
@@ -117,10 +115,31 @@
 
 
               <p class="text-center">
-                <span>New on our platform?</span>
-                <a href="{% url 'student_reg' %}">
-                  <span>Create an account</span>
-                </a>
+                
+<p id="countdown"></p>
+<button id="resendOtp" onclick="location.reload();" disabled>Resend OTP</button>
+
+<script>
+    let expiryTime = new Date("{{ request.session.otp_expiry }}").getTime();
+    let countdown = document.getElementById("countdown");
+    let resendBtn = document.getElementById("resendOtp");
+
+    function updateCountdown() {
+        let now = new Date().getTime();
+        let timeLeft = expiryTime - now;
+
+        if (timeLeft > 0) {
+            let minutes = Math.floor(timeLeft / 60000);
+            let seconds = Math.floor((timeLeft % 60000) / 1000);
+            countdown.innerHTML = `OTP expires in ${minutes}:${seconds}`;
+            setTimeout(updateCountdown, 1000);
+        } else {
+            countdown.innerHTML = "OTP expired!";
+            resendBtn.disabled = false;
+        }
+    }
+    updateCountdown();
+</script>
               </p>
             </div>
           </div>

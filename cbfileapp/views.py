@@ -1,11 +1,10 @@
-from django.shortcuts import render
 from django.db import connection
 from django.shortcuts import render, redirect
 from django.contrib.auth import login
 from django.contrib import messages
 from django.db import connection
 from django.contrib.auth.hashers import check_password
-from .models import FacultyAccount, StudentFolderView, AdminLogs, FacultyAdminLogs, StudentActivityLogs, StudentAccount
+from .models import FacultyAccount, StudentFolderView, AdminLogs, FacultyAdminLogs, StudentActivityLogs, StudentAccount, UserAccount
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
@@ -17,15 +16,23 @@ from django.shortcuts import redirect
 from django.urls import reverse
 from django.core.mail import send_mail
 from .forms import MyForm
+import random
+import datetime
+from django.utils.timezone import now
 
-def send_email():
-    subject = "Welcome to Django Mailer"
-    message = "Hello! This is a test email sent from Django."
+def generate_otp():
+    """Generate a 6-digit OTP"""
+    return str(random.randint(100000, 999999))
+
+def send_email(otp, send_to):
+    """Send OTP email"""
+    subject = "Your One-Time Password (OTP)"
+    message = f"Your OTP is {otp}. It is valid for 5 minutes."
     from_email = "dece.nas.system@gmail.com"
-    recipient_list = ["ediwawkiki@gmail.com"]
-
+    recipient_list = [send_to]
+    
     send_mail(subject, message, from_email, recipient_list)
-    return "Email sent successfully!"
+
 
 def require_faculty_login(view_func):
     """
@@ -355,9 +362,12 @@ def reg_student(request):
                         "INSERT INTO user_account (username, hashed_password, student_id, email_verified) VALUES (%s, %s, %s, %s)",
                         (username, hashed_password, sr_code, 'no'),
                     )
+                    
+                request.session['student_email'] = f"{sr_code}@g.batstate-u.edu.ph"  
+                request.session['student_srcode'] = sr_code
 
                 messages.success(request, "Registration successful! Please verify your email.")
-                return redirect("student_login")  # Redirect to login page after successful registration
+                return redirect("student_everif")  # Redirect to login page after successful registration
 
             except Exception as e:
                 messages.error(request, f"Error: {e}")
@@ -486,3 +496,51 @@ def student_folders(request):
     }
 
     return render(request, 'student/folders.html', context)
+
+
+def student_everif(request):
+    """Handle OTP verification"""
+    student_email = request.session.get("student_email", None)
+    student_srcode = request.session.get("student_srcode", None)
+
+    if not student_email:
+        return redirect("student_reg")  # Redirect if no email in session
+
+    # Generate OTP and store in session
+    otp = generate_otp()
+    request.session["otp"] = otp
+    request.session["otp_expiry"] = (now() + datetime.timedelta(minutes=5)).isoformat()
+
+    send_email(otp, student_email)
+    messages.success(request, "An OTP has been sent to your email.")
+
+    return render(request, "student/s-everif.html", {"student_email": student_email, "student_srcode": student_srcode})
+
+def verify_otp(request):
+    """Verify user input OTP"""
+    if request.method == "POST":
+        entered_otp = request.POST.get("otp")
+        session_otp = request.session.get("otp")
+        expiry = request.session.get("otp_expiry")
+
+        if not session_otp or not expiry:
+            messages.error(request, "OTP expired. Please request a new one.")
+            return redirect("student_everif")
+
+        if now() > datetime.datetime.fromisoformat(expiry):
+            messages.error(request, "OTP has expired. Request a new one.")
+            return redirect("student_everif")
+
+        if entered_otp == session_otp:
+            # Mark email as verified in DB
+            user = UserAccount.objects.filter(student_id=request.session["student_srcode"]).first()
+            if user:
+                user.email_verified = "yes"
+                user.save()
+            
+            messages.success(request, "Email verified successfully!")
+            return redirect("student_login")
+
+        else:
+            messages.error(request, "Invalid OTP. Try again.")
+            return redirect("student_everif")

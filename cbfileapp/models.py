@@ -22,8 +22,16 @@ class UserAccount(models.Model):
     hashed_password = models.CharField(max_length=255)
     faculty = models.ForeignKey(FacultyInfo, on_delete=models.CASCADE, blank=True, null=True)
     student = models.ForeignKey(StudentInfo, on_delete=models.CASCADE, blank=True, null=True)
+    EMAIL_VERIFIED_CHOICES = [
+        ('no', 'No'),
+        ('yes', 'Yes'),
+    ]
+    email_verified = models.CharField(max_length=3, choices=EMAIL_VERIFIED_CHOICES, default='no')
+
     class Meta:
         managed = False
+        db_table = 'user_account'
+        
 class AdminLogs(models.Model):
     log_id = models.AutoField(primary_key=True)
     admin_id = models.CharField(max_length=255)
