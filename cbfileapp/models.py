@@ -110,7 +110,7 @@ class StudentAccount(models.Model):
         db_table = 'student_accounts'
 
 class StudentFolder(models.Model):
-    student_id = models.IntegerField()
+    student_id = models.CharField(max_length=255)
     folder = models.ForeignKey('FolderTns', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
 

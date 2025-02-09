@@ -4,7 +4,7 @@ from django.contrib.auth import login
 from django.contrib import messages
 from django.db import connection
 from django.contrib.auth.hashers import check_password
-from .models import FacultyAccount, StudentFolderView, AdminLogs, FacultyAdminLogs, StudentActivityLogs, StudentAccount, UserAccount,FolderTns, FacultyFoldersView
+from .models import FacultyAccount, StudentFolderView, AdminLogs, FacultyAdminLogs, StudentActivityLogs, StudentAccount, UserAccount,FolderTns, FacultyFoldersView, StudentFolder
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
@@ -20,6 +20,7 @@ import random
 import datetime
 from django.utils.timezone import now
 from django.utils.crypto import get_random_string
+from django.db.models import Q, OuterRef, Subquery, Exists
 
 def generate_otp():
     """Generate a 6-digit OTP"""
@@ -415,7 +416,6 @@ def admin_folders(request):
 
     return render(request, 'admin_p/folders.html', context)
 
-from django.db.models import Q, OuterRef, Subquery, Exists
 
 def faculty_folders(request):
     faculty_id = request.session.get('faculty_id', None)
@@ -491,37 +491,29 @@ def faculty_folders(request):
 
 
 
-
 def student_folders(request):
-    
     student_id = request.session.get('student_id', None)
     full_name = request.session.get('s_fullname', None)
 
-    # If there is no faculty_id in the session, redirect to the admin login page
+    # If there is no student_id in the session, redirect to the student login page
     if not student_id:
-        return redirect(reverse('student_login'))  # 'admin_login' should be the name of your login URL
+        return redirect(reverse('student_login'))
 
-    # Filter the data by faculty_id from the session
-    student_folders = StudentFolderView.objects.filter(sr_code=student_id) \
-        .values('unique_code', 'folder_name', 'description', 'apicode', 'faculty_gsuite', 'student_first_name', 'student_last_name')
+    # Get folders that the student has joined (for viewing)
+    student_folders = StudentFolder.objects.filter(student_id=student_id) \
+        .values('folder__unique_code', 'folder__folder_name', 'folder__description', 'folder__apicode')
 
-    # Group by unique_code for the folder
+    # Group folders by unique_code
     grouped_folders = {}
     for folder in student_folders:
-        unique_code = folder['unique_code']
+        unique_code = folder['folder__unique_code']
         if unique_code not in grouped_folders:
             grouped_folders[unique_code] = {
-                'folder_name': folder['folder_name'],
-                'description': folder['description'],
-                'apicode': folder['apicode'],
-                'faculty_gsuite': folder['faculty_gsuite'],
-                'students': []
+                'folder_name': folder['folder__folder_name'],
+                'description': folder['folder__description'],
+                'apicode': folder['folder__apicode']
             }
-        # Append student details to the students list
-        student_name = f"{folder['student_first_name']} {folder['student_last_name']}"
-        grouped_folders[unique_code]['students'].append(student_name)
 
-    # Pass the session data and grouped folders to the template
     context = {
         'student_id': student_id,
         'full_name': full_name,
@@ -529,6 +521,27 @@ def student_folders(request):
     }
 
     return render(request, 'student/folders.html', context)
+
+def join_folder(request):
+    student_id = request.session.get('student_id', None)
+    
+    if request.method == 'POST' and student_id:
+        unique_code = request.POST.get('unique_code')
+        # Find folder by unique_code
+        try:
+            folder = FolderTns.objects.get(unique_code=unique_code)
+            
+            # Check if the student has already joined this folder
+            if StudentFolder.objects.filter(student_id=student_id, folder=folder).exists():
+                return redirect('student_folder')  # or show a message: "Already joined this folder"
+            
+            # Add student to the folder
+            StudentFolder.objects.create(student_id=student_id, folder=folder)
+            return redirect('student_folder')
+        except FolderTns.DoesNotExist:
+            # Handle case where the folder is not found
+            return redirect('student_folder')  # or show a message: "Folder not found"
+    return redirect('student_folder')
 
 
 def student_everif(request):
