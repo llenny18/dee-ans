@@ -126,6 +126,7 @@ class FolderFile(models.Model):
         return f"{self.file_name} in folder {self.folder_code}"
 
 class StudentFolder(models.Model):
+    id = models.AutoField(primary_key=True)
     student_id = models.CharField(max_length=255)
     folder = models.ForeignKey('FolderTns', on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)

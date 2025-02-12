@@ -579,7 +579,7 @@ def student_folders(request):
 
     # Get folders that the student has joined (for viewing)
     student_folders = StudentFolder.objects.filter(student_id=student_id) \
-        .values('folder__unique_code', 'folder__folder_name', 'folder__description', 'folder__apicode')
+        .values('id', 'folder__unique_code', 'folder__folder_name', 'folder__description', 'folder__apicode')
 
     # Group folders by unique_code
     grouped_folders = {}
