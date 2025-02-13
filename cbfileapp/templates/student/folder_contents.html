@@ -136,53 +136,7 @@
                               {% endif %}
                               <hr>
                               <button class="btn btn-primary">Download</button>
-                              <button
-                          type="button"
-                          class="btn btn-success"
-                          data-bs-toggle="modal"
-                          data-bs-target="#fullscreenModal{{ file.file_name|cut:" " }}"
-                        >
-                        Share
-                        </button>
-
-                        <!-- Modal -->
-                        <div class="modal fade" id="fullscreenModal{{ file.file_name|cut:" " }}" tabindex="-1" aria-hidden="true">
-                          <div class="modal-dialog modal-lg" role="document">
-                            <div class="modal-content">
-                              <div class="modal-header">
-                                <button
-                                  type="button"
-                                  class="btn-close"
-                                  data-bs-dismiss="modal"
-                                  aria-label="Close"
-                                ></button>
-                              </div>
-                              <div class="modal-body">
-                                <h5 class="card-title">File Name: {{ file.file_name }}</h5>
-                                <h6 class="card-title">Users with Access:</h6>
-                                <p>Carol S. Calderon</p>
-                                <p>Janice E. Bendulo</p>
-                                <hr>
-                                <label for="person">Select a Student to share to in this folder:</label>
-                                <select id="person" name="person" class="form-control">
-                                    <option value="">-- Select Here  -- </option>
-                                    <option value="carol_calderon">Carol S. Calderon</option>
-                                    <option value="janice_bendulo">Janice E. Bendulo</option>
-                                    <option value="janice_bendulo">Erica Mischelle Aranda</option>
-                                </select>
-                                
-                               
-                                
-                              </div>
-                              <div class="modal-footer">
-                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
-                                  Close
-                                </button>
-                                <button type="button" class="btn btn-primary">Save changes</button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
+                            
                               </div>
                           </div>
                       </div>
