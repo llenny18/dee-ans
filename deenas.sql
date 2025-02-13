@@ -3,8 +3,8 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 05, 2025 at 06:00 PM
--- Server version: 11.5.2-MariaDB
+-- Generation Time: Feb 13, 2025 at 02:55 AM
+-- Server version: 11.6.2-MariaDB
 -- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -44,7 +44,13 @@ INSERT INTO `admin_logs` (`log_id`, `admin_id`, `action`, `timestamp`, `ip_addre
 (1, 1, 'Created a new user', '2025-02-03 15:02:39', '192.168.1.10', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)'),
 (2, 1, 'Updated system settings', '2025-02-03 15:02:39', '192.168.1.15', 'Chrome/91.0.4472.124'),
 (3, 2, 'Deleted an inactive account', '2025-02-03 15:02:39', '192.168.1.20', 'Safari/14.0.3'),
-(4, 3, 'Reset a user password', '2025-02-03 15:02:39', '192.168.1.30', 'Edge/90.0.818.51');
+(4, 3, 'Reset a user password', '2025-02-03 15:02:39', '192.168.1.30', 'Edge/90.0.818.51'),
+(5, 1, 'Logged In', '2025-02-13 01:22:03', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0'),
+(6, 1, 'Viewed folders he/she created', '2025-02-13 01:22:04', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0'),
+(7, 1, 'Viewed folders he/she created', '2025-02-13 01:22:52', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0'),
+(8, 1, 'Viewed folders he/she created', '2025-02-13 01:22:55', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0'),
+(9, 1, 'Viewed the files of the folder with code dfgdfgd', '2025-02-13 01:23:43', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0'),
+(10, 1, 'Logged out', '2025-02-13 01:24:06', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0');
 
 -- --------------------------------------------------------
 
@@ -110,7 +116,11 @@ INSERT INTO `auth_permission` (`id`, `name`, `content_type_id`, `codename`) VALU
 (21, 'Can add session', 6, 'add_session'),
 (22, 'Can change session', 6, 'change_session'),
 (23, 'Can delete session', 6, 'delete_session'),
-(24, 'Can view session', 6, 'view_session');
+(24, 'Can view session', 6, 'view_session'),
+(25, 'Can add captcha store', 7, 'add_captchastore'),
+(26, 'Can change captcha store', 7, 'change_captchastore'),
+(27, 'Can delete captcha store', 7, 'delete_captchastore'),
+(28, 'Can view captcha store', 7, 'view_captchastore');
 
 -- --------------------------------------------------------
 
@@ -159,6 +169,35 @@ CREATE TABLE `auth_user_user_permissions` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `captcha_captchastore`
+--
+
+CREATE TABLE `captcha_captchastore` (
+  `id` int(11) NOT NULL,
+  `challenge` varchar(32) NOT NULL,
+  `response` varchar(32) NOT NULL,
+  `hashkey` varchar(40) NOT NULL,
+  `expiration` datetime(6) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `captcha_captchastore`
+--
+
+INSERT INTO `captcha_captchastore` (`id`, `challenge`, `response`, `hashkey`, `expiration`) VALUES
+(95, 'PONA', 'pona', '9d89a37221ec4b7ea18aa6c55f50e32230d5156c', '2025-02-13 01:26:27.121445'),
+(97, 'YBLA', 'ybla', '6b84ac42e2b666dab19203eb11050289d91d2dad', '2025-02-13 01:29:06.188870'),
+(99, 'UDVE', 'udve', '508be5aaa134759314c35e62c465f6f3ea5d77b5', '2025-02-13 01:41:57.151520'),
+(100, 'HCEG', 'hceg', 'ed45552703aa5745898a613570115a336352937d', '2025-02-13 01:47:43.008031'),
+(101, 'ZUXI', 'zuxi', '17467d89abd0a52041dcc3db7e858d1bb4845ad1', '2025-02-13 01:57:42.304047'),
+(102, 'SFIS', 'sfis', '86e0a398abb2effe6592b073c723d7d346d830a5', '2025-02-13 01:57:44.293257'),
+(103, 'DOPJ', 'dopj', '71dcb5e64431b8f1ed1e6a418f8a981a981119cb', '2025-02-13 01:57:45.582749'),
+(104, 'PUJN', 'pujn', '9e51f2c31e5235ccac0f40afabcc4d69af5bbdbf', '2025-02-13 01:57:47.475817'),
+(105, 'RXLJ', 'rxlj', '8b1af85f33e8bb548e4d99ee537cd9e0f2808db4', '2025-02-13 01:58:36.262432');
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `django_admin_log`
 --
 
@@ -194,6 +233,7 @@ INSERT INTO `django_content_type` (`id`, `app_label`, `model`) VALUES
 (3, 'auth', 'group'),
 (2, 'auth', 'permission'),
 (4, 'auth', 'user'),
+(7, 'captcha', 'captchastore'),
 (5, 'contenttypes', 'contenttype'),
 (6, 'sessions', 'session');
 
@@ -232,7 +272,9 @@ INSERT INTO `django_migrations` (`id`, `app`, `name`, `applied`) VALUES
 (15, 'auth', '0010_alter_group_name_max_length', '2025-02-03 06:51:13.576363'),
 (16, 'auth', '0011_update_proxy_permissions', '2025-02-03 06:51:13.598355'),
 (17, 'auth', '0012_alter_user_first_name_max_length', '2025-02-03 06:51:14.067633'),
-(18, 'sessions', '0001_initial', '2025-02-03 06:51:14.786731');
+(18, 'sessions', '0001_initial', '2025-02-03 06:51:14.786731'),
+(19, 'captcha', '0001_initial', '2025-02-06 14:13:21.032467'),
+(20, 'captcha', '0002_alter_captchastore_id', '2025-02-06 14:13:21.094958');
 
 -- --------------------------------------------------------
 
@@ -245,6 +287,13 @@ CREATE TABLE `django_session` (
   `session_data` longtext NOT NULL,
   `expire_date` datetime(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `django_session`
+--
+
+INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES
+('0e4a7py6xooqyrdjnm5ebk05xjmd4cei', 'eyJzdHVkZW50X2lkIjoiMjEtMDg0MjAiLCJzX2Z1bGxuYW1lIjoiRXJpY2EgTWlzY2hlbGxlIEFyYW5kYSAifQ:1tiNxu:-L2sYH0iie7OSMvbfScNtH89_oJdxjJlidEVZMgHWSM', '2025-02-27 01:24:30.614533');
 
 -- --------------------------------------------------------
 
@@ -287,6 +336,30 @@ CREATE TABLE `faculty_admin_logs` (
 -- --------------------------------------------------------
 
 --
+-- Stand-in structure for view `faculty_folders`
+-- (See below for the actual view)
+--
+CREATE TABLE `faculty_folders` (
+`id` bigint(21)
+,`u_id` int(11)
+,`username` varchar(50)
+,`faculty_id` int(11)
+,`faculty_first_name` varchar(50)
+,`faculty_last_name` varchar(50)
+,`faculty_email` varchar(100)
+,`student_id` varchar(10)
+,`email_verified` enum('no','yes')
+,`folder_id` int(11)
+,`folder_name` varchar(255)
+,`description` varchar(455)
+,`unique_code` varchar(255)
+,`apicode` varchar(255)
+,`created_at` timestamp
+);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `faculty_info`
 --
 
@@ -303,9 +376,33 @@ CREATE TABLE `faculty_info` (
 --
 
 INSERT INTO `faculty_info` (`id`, `gsuite`, `first_name`, `middle_name`, `last_name`) VALUES
-(1, 'ralphgerard.sangalang@g.batstate-u.edu.ph', 'Ralph', 'Gerard', 'Sangalang'),
+(1, 'ralphgerard.sangalang@g.batstate-u.edu.ph', 'Ralph Gerard', '', 'Sangalang'),
 (2, 'joven.dimaculangan@g.batstate-u.edu.ph', 'Joven', '', 'Dimaculangan'),
 (3, 'johncarlo.aggari@g.batstate-u.edu.ph', 'John Carlo', '', 'Aggari');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `folder_files`
+--
+
+CREATE TABLE `folder_files` (
+  `file_id` int(11) NOT NULL,
+  `folder_code` varchar(255) NOT NULL,
+  `file_name` varchar(255) NOT NULL,
+  `file_description` text DEFAULT NULL,
+  `file_link` varchar(255) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `folder_files`
+--
+
+INSERT INTO `folder_files` (`file_id`, `folder_code`, `file_name`, `file_description`, `file_link`) VALUES
+(1, '9DYvkdd0Mx', 'dsfsd', 'fdsfs', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf'),
+(2, '9DYvkdd0Mx', 'rty', 'rtyrt', 'ytyrt.pdf'),
+(3, 'dfgdfgd', 'dfgdf', 'gdfgdf', 'hgfghfgh.png'),
+(4, 'dfgdfgd', 'yrtyrt', 'yrtyrtyrt', 'yrt.jpg');
 
 -- --------------------------------------------------------
 
@@ -328,8 +425,10 @@ CREATE TABLE `folder_tns` (
 --
 
 INSERT INTO `folder_tns` (`id`, `folder_name`, `description`, `unique_code`, `apicode`, `faculty_id`, `created_at`) VALUES
-(1, 'TRYMUNA', 'SADASD', 'DFG3545', 'dfgdfgdfgdf', 1, '2025-02-05 15:16:18'),
-(2, 'dfgdfgdfg', 'rdfgdf', 'dfgdfgd', 'tuyhjkhjk', 1, '2025-02-05 15:16:18');
+(1, 'TRYMUNA', 'SADASD', 'DFG3545', 'dfgdfgdfgdf', 2, '2025-02-05 15:16:18'),
+(2, 'dfgdfgdfg', 'rdfgdf', 'dfgdfgd', 'tuyhjkhjk', 1, '2025-02-05 15:16:18'),
+(3, 'dfgdf', 'gdfgdfg', '9rX0RjpOVi', 'dfgdfgdfgdfg', 1, '2025-02-08 21:03:07'),
+(4, 'hjgh', 'jghjgh', '9DYvkdd0Mx', 'jghjghjgh', 1, '2025-02-08 21:22:30');
 
 -- --------------------------------------------------------
 
@@ -386,8 +485,9 @@ CREATE TABLE `student_folder` (
 
 INSERT INTO `student_folder` (`id`, `student_id`, `folder_id`, `created_at`) VALUES
 (1, '21-00396', 1, '2025-02-05 15:16:57'),
-(2, '21-00623', 1, '2025-02-05 15:17:20'),
-(3, '21-00623', 2, '2025-02-05 15:17:20');
+(2, '21-07187', 1, '2025-02-05 15:17:20'),
+(3, '21-00623', 2, '2025-02-05 15:17:20'),
+(4, '21-08420', 4, '2025-02-08 21:38:46');
 
 -- --------------------------------------------------------
 
@@ -396,7 +496,8 @@ INSERT INTO `student_folder` (`id`, `student_id`, `folder_id`, `created_at`) VAL
 -- (See below for the actual view)
 --
 CREATE TABLE `student_folder_view` (
-`sr_code` varchar(10)
+`id` bigint(21)
+,`sr_code` varchar(10)
 ,`student_first_name` varchar(50)
 ,`student_middle_name` varchar(50)
 ,`student_last_name` varchar(50)
@@ -420,6 +521,7 @@ CREATE TABLE `student_folder_view` (
 
 CREATE TABLE `student_info` (
   `sr_code` varchar(10) NOT NULL,
+  `g_email` varchar(455) NOT NULL,
   `first_name` varchar(50) DEFAULT NULL,
   `middle_name` varchar(50) DEFAULT NULL,
   `last_name` varchar(50) DEFAULT NULL
@@ -429,27 +531,29 @@ CREATE TABLE `student_info` (
 -- Dumping data for table `student_info`
 --
 
-INSERT INTO `student_info` (`sr_code`, `first_name`, `middle_name`, `last_name`) VALUES
-('21-00396', 'Althea Faye', 'P.', 'Estolas'),
-('21-00623', 'Ariane Maureen', 'A.', 'Delos Reyes'),
-('21-00641', 'Kim Cinderella', 'D.', 'Pestijo'),
-('21-00838', 'Faith Angela', 'N.', 'Levardo'),
-('21-01642', 'Carol', 'S.', 'Calderon'),
-('21-01836', 'Isaac Miguel', 'R.', 'Villareal'),
-('21-02046', 'John Alfred', 'P.', 'Diaz'),
-('21-02087', 'John Joshua Javier', 'B.', 'Solar'),
-('21-02863', 'Ryan Joshua', 'F.', 'Eslera'),
-('21-02867', 'Joyce Myca', '', 'Espiritu'),
-('21-03396', 'Carlin', 'Josh', 'Mendoza'),
-('21-03685', 'Russel John', 'C.', 'Tenorio'),
-('21-05156', 'Patricia Anne', 'D.', 'Eleda'),
-('21-05200', 'Donnalyn Arrianne', 'A.', 'Galvo'),
-('21-05798', 'Mark Niño', 'D.', 'Dimalibot'),
-('21-06108', 'Joshua Glenn', 'A.', 'Ebron'),
-('21-07187', 'Janice', 'E.', 'Bendulo'),
-('21-08103', 'Ruth Joy', 'R.', 'Lucido'),
-('21-08420', 'Erica Mischelle', '', 'Aranda'),
-('21-08567', 'Jade Francine', 'B.', 'Chavez');
+INSERT INTO `student_info` (`sr_code`, `g_email`, `first_name`, `middle_name`, `last_name`) VALUES
+('21-00396', '21-00396@g.batstate-u.edu.ph', 'Althea Faye', 'P.', 'Estolas'),
+('21-00623', '21-00623@g.batstate-u.edu.ph', 'Ariane Maureen', 'A.', 'Delos Reyes'),
+('21-00641', '21-00641@g.batstate-u.edu.ph', 'Kim Cinderella', 'D.', 'Pestijo'),
+('21-00838', '21-00838@g.batstate-u.edu.ph', 'Faith Angela', 'N.', 'Levardo'),
+('21-01642', '21-01642@g.batstate-u.edu.ph', 'Carol', 'S.', 'Calderon'),
+('21-01836', '21-01836@g.batstate-u.edu.ph', 'Isaac Miguel', 'R.', 'Villareal'),
+('21-02046', '21-02046@g.batstate-u.edu.ph', 'John Alfred', 'P.', 'Diaz'),
+('21-02087', '21-02087@g.batstate-u.edu.ph', 'John Joshua Javier', 'B.', 'Solar'),
+('21-02863', '21-02863@g.batstate-u.edu.ph', 'Ryan Joshua', 'F.', 'Eslera'),
+('21-02867', '21-02867@g.batstate-u.edu.ph', 'Joyce Myca', '', 'Espiritu'),
+('21-03396', '21-03396@g.batstate-u.edu.ph', 'Carlin', 'Josh', 'Mendoza'),
+('21-03685', '21-03685@g.batstate-u.edu.ph', 'Russel John', 'C.', 'Tenorio'),
+('21-05156', '21-05156@g.batstate-u.edu.ph', 'Patricia Anne', 'D.', 'Eleda'),
+('21-05200', '21-05200@g.batstate-u.edu.ph', 'Donnalyn Arrianne', 'A.', 'Galvo'),
+('21-05798', '21-05798@g.batstate-u.edu.ph', 'Mark Niño', 'D.', 'Dimalibot'),
+('21-06108', '21-06108@g.batstate-u.edu.ph', 'Joshua Glenn', 'A.', 'Ebron'),
+('21-07187', '21-07187@g.batstate-u.edu.ph', 'Janice', 'E.', 'Bendulo'),
+('21-08103', '21-08103@g.batstate-u.edu.ph', 'Ruth Joy', 'R.', 'Lucido'),
+('21-08420', '21-08420@g.batstate-u.edu.ph', 'Erica Mischelle', '', 'Aranda'),
+('21-08567', '21-08567@g.batstate-u.edu.ph', 'Jade Francine', 'B.', 'Chavez'),
+('21-34330', '21-34330@g.batstate-u.edu.ph', 'ewrew', 'ewrw', 'rew'),
+('rwerwr', 'rwerwr@student.edu', 'werwe', 'rewr', 'werwe');
 
 -- --------------------------------------------------------
 
@@ -474,7 +578,13 @@ INSERT INTO `student_logs` (`log_id`, `student_id`, `action`, `timestamp`, `ip_a
 (1, '21-00623', 'Logged in to the portal', '2025-02-03 15:02:53', '192.168.1.40', 'Firefox/89.0'),
 (2, '21-01836', 'Submitted an assignment', '2025-02-03 15:02:53', '192.168.1.50', 'Opera/75.0'),
 (3, '21-00641', 'Updated profile information', '2025-02-03 15:02:53', '192.168.1.60', 'Brave/1.26.74'),
-(4, '	\n21-01642', 'Viewed course materials', '2025-02-03 15:02:53', '192.168.1.70', 'Microsoft Edge/92.0.902.62');
+(4, '21-01642', 'Viewed course materials', '2025-02-03 15:02:53', '192.168.1.70', 'Microsoft Edge/92.0.902.62'),
+(5, '21-08420', 'Logged in', '2025-02-13 01:20:33', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0'),
+(6, '21-08420', 'Viewed folders he/she is joined in', '2025-02-13 01:21:23', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0'),
+(7, '21-08420', 'Logged out', '2025-02-13 01:21:27', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0'),
+(8, '21-08420', 'Logged in', '2025-02-13 01:24:30', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0'),
+(9, '21-08420', 'Viewed folders he/she is joined in', '2025-02-13 01:24:31', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0'),
+(10, '21-08420', 'Viewed the files of the folder with code 9DYvkdd0Mx', '2025-02-13 01:24:32', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36 Edg/133.0.0.0');
 
 -- --------------------------------------------------------
 
@@ -487,20 +597,24 @@ CREATE TABLE `user_account` (
   `username` varchar(50) NOT NULL,
   `hashed_password` varchar(255) NOT NULL,
   `faculty_id` int(11) DEFAULT NULL,
-  `student_id` varchar(10) DEFAULT NULL
+  `student_id` varchar(10) DEFAULT NULL,
+  `email_verified` enum('no','yes') NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `user_account`
 --
 
-INSERT INTO `user_account` (`u_id`, `username`, `hashed_password`, `faculty_id`, `student_id`) VALUES
-(1, 'ralphs', 'MsiQs2M8oleD4BALHYk97U9PO7HO1oGsKk/6E2caWqbOiTiECGTxQ+TwuDEIJtJR', 1, NULL),
-(2, 'jovend', 'MsiQs2M8oleD4BALHYk97U9PO7HO1oGsKk/6E2caWqbOiTiECGTxQ+TwuDEIJtJR', 2, NULL),
-(3, 'johnc', 'MsiQs2M8oleD4BALHYk97U9PO7HO1oGsKk/6E2caWqbOiTiECGTxQ+TwuDEIJtJR', 3, NULL),
-(4, 'erica21', 'MsiQs2M8oleD4BALHYk97U9PO7HO1oGsKk/6E2caWqbOiTiECGTxQ+TwuDEIJtJR', NULL, '21-08420'),
-(5, 'janice21', 'hashed_password_5', NULL, '21-07187'),
-(6, 'carol21', 'hashed_password_6', NULL, '21-01642');
+INSERT INTO `user_account` (`u_id`, `username`, `hashed_password`, `faculty_id`, `student_id`, `email_verified`) VALUES
+(1, 'ralphs', 'MsiQs2M8oleD4BALHYk97U9PO7HO1oGsKk/6E2caWqbOiTiECGTxQ+TwuDEIJtJR', 1, NULL, 'no'),
+(2, 'jovend', 'MsiQs2M8oleD4BALHYk97U9PO7HO1oGsKk/6E2caWqbOiTiECGTxQ+TwuDEIJtJR', 2, NULL, 'no'),
+(3, 'johnc', 'MsiQs2M8oleD4BALHYk97U9PO7HO1oGsKk/6E2caWqbOiTiECGTxQ+TwuDEIJtJR', 3, NULL, 'no'),
+(4, 'erica21', 'MsiQs2M8oleD4BALHYk97U9PO7HO1oGsKk/6E2caWqbOiTiECGTxQ+TwuDEIJtJR', NULL, '21-08420', 'no'),
+(5, 'janice21', 'MsiQs2M8oleD4BALHYk97U9PO7HO1oGsKk/6E2caWqbOiTiECGTxQ+TwuDEIJtJR', NULL, '21-07187', 'no'),
+(6, 'carol21', 'MsiQs2M8oleD4BALHYk97U9PO7HO1oGsKk/6E2caWqbOiTiECGTxQ+TwuDEIJtJR', NULL, '21-01642', 'no'),
+(7, 'ewrwerwer', 'x7EMmYIVbth0dkkuSMIPG40izh8ds6Xs56mEenm/QhjNJAFu1J//1LfiOvS5zAPF', NULL, 'rwerwr', 'no'),
+(111111, 'admin', 'MsiQs2M8oleD4BALHYk97U9PO7HO1oGsKk/6E2caWqbOiTiECGTxQ+TwuDEIJtJR', NULL, NULL, 'yes'),
+(111113, 'admin2', '++cG8chEdYC/OO6yzIv1+9o3tcZqCkDO2WRRK3Dc8fijeJNulwzvve7gkZveOWqw', NULL, '21-34330', 'yes');
 
 -- --------------------------------------------------------
 
@@ -519,6 +633,15 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 DROP TABLE IF EXISTS `faculty_admin_logs`;
 
 CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `faculty_admin_logs`  AS SELECT row_number() over ( order by `a`.`timestamp`) AS `id`, `f`.`id` AS `faculty_id`, `f`.`gsuite` AS `gsuite`, `f`.`first_name` AS `first_name`, `f`.`middle_name` AS `middle_name`, `f`.`last_name` AS `last_name`, `a`.`log_id` AS `log_id`, `a`.`admin_id` AS `admin_id`, `a`.`action` AS `action`, `a`.`timestamp` AS `timestamp`, `a`.`ip_address` AS `ip_address`, `a`.`user_agent` AS `user_agent` FROM (`faculty_info` `f` join `admin_logs` `a` on(`f`.`id` = `a`.`admin_id`)) ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `faculty_folders`
+--
+DROP TABLE IF EXISTS `faculty_folders`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `faculty_folders`  AS SELECT row_number() over () AS `id`, `ua`.`u_id` AS `u_id`, `ua`.`username` AS `username`, `ua`.`faculty_id` AS `faculty_id`, `f`.`first_name` AS `faculty_first_name`, `f`.`last_name` AS `faculty_last_name`, `f`.`gsuite` AS `faculty_email`, `ua`.`student_id` AS `student_id`, `ua`.`email_verified` AS `email_verified`, `ft`.`id` AS `folder_id`, `ft`.`folder_name` AS `folder_name`, `ft`.`description` AS `description`, `ft`.`unique_code` AS `unique_code`, `ft`.`apicode` AS `apicode`, `ft`.`created_at` AS `created_at` FROM ((`user_account` `ua` join `folder_tns` `ft` on(`ua`.`faculty_id` = `ft`.`faculty_id`)) left join `faculty_info` `f` on(`ua`.`faculty_id` = `f`.`id`)) ;
 
 -- --------------------------------------------------------
 
@@ -545,7 +668,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `student_folder_view`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `student_folder_view`  AS SELECT `si`.`sr_code` AS `sr_code`, `si`.`first_name` AS `student_first_name`, `si`.`middle_name` AS `student_middle_name`, `si`.`last_name` AS `student_last_name`, `fi`.`gsuite` AS `faculty_gsuite`, `fi`.`first_name` AS `faculty_first_name`, `fi`.`middle_name` AS `faculty_middle_name`, `fi`.`last_name` AS `faculty_last_name`, `ft`.`folder_name` AS `folder_name`, `ft`.`description` AS `description`, `ft`.`unique_code` AS `unique_code`, `ft`.`apicode` AS `apicode`, `ft`.`faculty_id` AS `faculty_id`, `sf`.`created_at` AS `student_folder_created_at` FROM (((`student_folder` `sf` join `student_info` `si` on(`sf`.`student_id` = `si`.`sr_code`)) join `folder_tns` `ft` on(`sf`.`folder_id` = `ft`.`id`)) join `faculty_info` `fi` on(`ft`.`faculty_id` = `fi`.`id`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `student_folder_view`  AS SELECT row_number() over ( order by `si`.`sr_code`) AS `id`, `si`.`sr_code` AS `sr_code`, `si`.`first_name` AS `student_first_name`, `si`.`middle_name` AS `student_middle_name`, `si`.`last_name` AS `student_last_name`, `fi`.`gsuite` AS `faculty_gsuite`, `fi`.`first_name` AS `faculty_first_name`, `fi`.`middle_name` AS `faculty_middle_name`, `fi`.`last_name` AS `faculty_last_name`, `ft`.`folder_name` AS `folder_name`, `ft`.`description` AS `description`, `ft`.`unique_code` AS `unique_code`, `ft`.`apicode` AS `apicode`, `ft`.`faculty_id` AS `faculty_id`, `sf`.`created_at` AS `student_folder_created_at` FROM (((`student_folder` `sf` join `student_info` `si` on(`sf`.`student_id` = `si`.`sr_code`)) join `folder_tns` `ft` on(`sf`.`folder_id` = `ft`.`id`)) join `faculty_info` `fi` on(`ft`.`faculty_id` = `fi`.`id`)) ;
 
 --
 -- Indexes for dumped tables
@@ -603,6 +726,13 @@ ALTER TABLE `auth_user_user_permissions`
   ADD KEY `auth_user_user_permi_permission_id_1fbb5f2c_fk_auth_perm` (`permission_id`);
 
 --
+-- Indexes for table `captcha_captchastore`
+--
+ALTER TABLE `captcha_captchastore`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `hashkey` (`hashkey`);
+
+--
 -- Indexes for table `django_admin_log`
 --
 ALTER TABLE `django_admin_log`
@@ -636,6 +766,12 @@ ALTER TABLE `django_session`
 ALTER TABLE `faculty_info`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `gsuite` (`gsuite`);
+
+--
+-- Indexes for table `folder_files`
+--
+ALTER TABLE `folder_files`
+  ADD PRIMARY KEY (`file_id`);
 
 --
 -- Indexes for table `folder_tns`
@@ -680,7 +816,7 @@ ALTER TABLE `user_account`
 -- AUTO_INCREMENT for table `admin_logs`
 --
 ALTER TABLE `admin_logs`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `auth_group`
@@ -698,7 +834,7 @@ ALTER TABLE `auth_group_permissions`
 -- AUTO_INCREMENT for table `auth_permission`
 --
 ALTER TABLE `auth_permission`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 
 --
 -- AUTO_INCREMENT for table `auth_user`
@@ -719,6 +855,12 @@ ALTER TABLE `auth_user_user_permissions`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
+-- AUTO_INCREMENT for table `captcha_captchastore`
+--
+ALTER TABLE `captcha_captchastore`
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=106;
+
+--
 -- AUTO_INCREMENT for table `django_admin_log`
 --
 ALTER TABLE `django_admin_log`
@@ -728,13 +870,13 @@ ALTER TABLE `django_admin_log`
 -- AUTO_INCREMENT for table `django_content_type`
 --
 ALTER TABLE `django_content_type`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
 -- AUTO_INCREMENT for table `django_migrations`
 --
 ALTER TABLE `django_migrations`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=19;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `faculty_info`
@@ -743,28 +885,34 @@ ALTER TABLE `faculty_info`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
+-- AUTO_INCREMENT for table `folder_files`
+--
+ALTER TABLE `folder_files`
+  MODIFY `file_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT for table `folder_tns`
 --
 ALTER TABLE `folder_tns`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `student_folder`
 --
 ALTER TABLE `student_folder`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `student_logs`
 --
 ALTER TABLE `student_logs`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 
 --
 -- AUTO_INCREMENT for table `user_account`
 --
 ALTER TABLE `user_account`
-  MODIFY `u_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `u_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=111114;
 
 --
 -- Constraints for dumped tables
