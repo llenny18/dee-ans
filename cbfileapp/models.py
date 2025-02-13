@@ -32,19 +32,7 @@ class UserAccount(models.Model):
         managed = False
         db_table = 'user_account'
         
-class AdminLogs(models.Model):
-    log_id = models.AutoField(primary_key=True)
-    admin_id = models.CharField(max_length=255)
-    action = models.CharField(max_length=255)
-    timestamp = models.DateTimeField(auto_now_add=True)
-    ip_address = models.GenericIPAddressField(null=True, blank=True)
-    user_agent = models.TextField(null=True, blank=True)
-    class Meta:
-        managed = False
-        db_table = 'admin_logs'
 
-    def __str__(self):
-        return f"Admin Log {self.log_id} - {self.action}"
 
 
 
@@ -83,10 +71,23 @@ class StudentActivityLogs(models.Model):
         db_table = 'student_activity_logs'  # The name of the view
         managed = False  # Django will not manage this table
 
+class AdminLogs(models.Model):
+    log_id = models.AutoField(primary_key=True)
+    admin_id = models.CharField(max_length=255)
+    action = models.CharField(max_length=255)
+    timestamp = models.DateTimeField(auto_now_add=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(null=True, blank=True)
+    class Meta:
+        managed = False
+        db_table = 'admin_logs'
+
+    def __str__(self):
+        return f"Admin Log {self.log_id} - {self.action}"
 
 class StudentLogs(models.Model):
     log_id = models.AutoField(primary_key=True)
-    student = models.CharField(max_length=255)
+    student_id = models.CharField(max_length=255)
     action = models.CharField(max_length=255)
     timestamp = models.DateTimeField(auto_now_add=True)
     ip_address = models.GenericIPAddressField(null=True, blank=True)

@@ -4,8 +4,7 @@ from captcha import urls as captcha_urls
 
 urlpatterns = [
     path('captcha/', include(captcha_urls)),
-    path('', views.read_html, name=''),
-    path('/', views.read_html, name='/'),
+    path('', views.home, name='home'),
     path('s_dashboard', views.read_html_s, name='s_dashboard'),
     path('a_dashboard', views.read_html, name='a_dashboard'),
     path('read-html/', views.read_html, name='read_html'),

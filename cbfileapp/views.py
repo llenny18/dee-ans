@@ -4,7 +4,7 @@ from django.contrib.auth import login
 from django.contrib import messages
 from django.db import connection
 from django.contrib.auth.hashers import check_password
-from .models import FacultyAccount, StudentFolderView, AdminLogs, FacultyAdminLogs, StudentActivityLogs, StudentAccount, UserAccount,FolderTns, FacultyFoldersView, StudentFolder, FolderFile
+from .models import AdminLogs, StudentLogs, FacultyAccount, StudentFolderView, AdminLogs, FacultyAdminLogs, StudentActivityLogs, StudentAccount, UserAccount,FolderTns, FacultyFoldersView, StudentFolder, FolderFile
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
@@ -21,6 +21,37 @@ import datetime
 from django.utils.timezone import now
 from django.utils.crypto import get_random_string
 from django.db.models import Q, OuterRef, Subquery, Exists
+from django.http import HttpRequest
+
+def log_action(user_type: str, user_id: str, action: str, request: HttpRequest):
+    """
+    A generic logging function to log actions for admin and student.
+    
+    :param user_type: 'admin' or 'student' to specify the user type
+    :param user_id: The user ID (admin ID or student username)
+    :param action: Description of the action performed
+    :param request: The HttpRequest object to capture IP and user agent
+    """
+    ip_address = request.META.get('REMOTE_ADDR', '')
+    user_agent = request.META.get('HTTP_USER_AGENT', '')
+
+    if user_type == 'admin':
+        # Log the action for admin
+        AdminLogs.objects.create(
+            admin_id=user_id,
+            action=action,
+            ip_address=ip_address,
+            user_agent=user_agent
+        )
+    elif user_type == 'student':
+        # Log the action for student
+        StudentLogs.objects.create(
+            student_id=user_id,
+            action=action,
+            ip_address=ip_address,
+            user_agent=user_agent
+        )
+
 
 def generate_otp():
     """Generate a 6-digit OTP"""
@@ -131,6 +162,7 @@ def login_admin(request):
                 if decrypt(hashed_password, passwordUnique) == password:  # This comparison should check the plain password, not a hash
                     request.session['admin_id'] = u_id  # Store session
                     request.session['username'] = username  # Store session for a_fullname
+                    log_action('admin', u_id, 'Logged In', request)
 
                     messages.success(request, "Login Successfully!")
                     return redirect('a_dashboard')  # Change this to your admin dashboard view
@@ -164,6 +196,7 @@ def login_faculty(request):
             if faculty:
                 u_id, username, hashed_password, first_name, middle_name, last_name, faculty_id = faculty
 
+                log_action('admin', u_id, 'Logged In', request)
                 # Assuming hashed_password is already hashed and we compare it with the derived hash of the entered password
                 if decrypt(hashed_password, passwordUnique) == password:  # This comparison should check the plain password, not a hash
                     request.session['faculty_id'] = u_id  # Store session
@@ -178,6 +211,10 @@ def login_faculty(request):
 
     context = {'form': form}
     return render(request, 'faculty/a-login.html', context)
+
+def home(request):
+
+    return render(request, 'landing.html')
 
 def read_html(request):
    
@@ -231,6 +268,7 @@ def read_html_s(request):
 def view_folder_s(request, folder_code):
     student_id = request.session.get('student_id', None)
     full_name = request.session.get('s_fullname', None)
+    log_action('student', student_id, f'Viewed the files of the folder with code {folder_code}', request)
 
     # If there is no student_id in the session, redirect to the student login page
     if not student_id:
@@ -271,6 +309,7 @@ def view_folder_s(request, folder_code):
 def view_folder_f(request, folder_code):
     faculty_id = request.session.get('faculty_id', None)
     full_name = request.session.get('a_fullname', None)
+    log_action('admin', faculty_id, f'Viewed the files of the folder with code {folder_code}', request)
 
     # If there is no student_id in the session, redirect to the student login page
     if not faculty_id:
@@ -317,6 +356,7 @@ def fetch_data(query):
 def admin_logs(request):
     admin_id = request.session.get('admin_id', None)
     full_name = request.session.get('a_fullname', None)
+
 
     # If there is no faculty_id in the session, redirect to the admin login page
     if not admin_id:
@@ -366,10 +406,12 @@ def logout_admin(request):
     return redirect('admin_login')
 
 def logout_faculty(request):
+    log_action('admin', request.session.get('faculty_id', None), 'Logged out', request)
     request.session.flush()
     return redirect('faculty_login')
 
 def logout_student(request):
+    log_action('student', request.session.get('student_id', None), 'Logged out', request)
     request.session.flush()
     return redirect('student_login')
 
@@ -401,6 +443,7 @@ def login_student(request):
                 if decrypt(hashed_password, passwordUnique) == password:  
                     request.session['student_id'] = student_id  
                     request.session['s_fullname'] = f"{first_name} {middle_name} {last_name}"
+                    log_action('student', student_id, 'Logged in', request)
 
                     messages.success(request, "Login successful!")
                     return redirect('s_dashboard')
@@ -445,6 +488,7 @@ def reg_student(request):
                     
                 request.session['student_email'] = f"{sr_code}@g.batstate-u.edu.ph"  
                 request.session['student_srcode'] = sr_code
+                log_action('student', sr_code, 'Registered to the system', request)
 
                 messages.success(request, "Registration successful! Please verify your email.")
                 return redirect("student_everif")  # Redirect to login page after successful registration
@@ -498,6 +542,7 @@ def admin_folders(request):
 def faculty_folders(request):
     faculty_id = request.session.get('faculty_id', None)
     full_name = request.session.get('a_fullname', None)
+    log_action('admin', faculty_id, 'Viewed folders he/she created', request)
 
     if not faculty_id:
         return redirect(reverse('faculty_login'))  
@@ -572,6 +617,7 @@ def faculty_folders(request):
 def student_folders(request):
     student_id = request.session.get('student_id', None)
     full_name = request.session.get('s_fullname', None)
+    log_action('student', student_id, 'Viewed folders he/she is joined in', request)
 
     # If there is no student_id in the session, redirect to the student login page
     if not student_id:
