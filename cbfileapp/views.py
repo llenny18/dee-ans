@@ -67,6 +67,72 @@ def send_email(otp, send_to):
     send_mail(subject, message, from_email, recipient_list)
 
 
+def send_otp_pass(request):
+    """Send OTP to the user's email for password reset"""
+    if request.method == "POST":
+        email = request.POST.get("email")
+        try:
+            # Check if the email exists in the database
+            user = UserAccount.objects.get(username=email)
+            # Generate OTP and store in session
+            otp = generate_otp()
+            request.session["otp"] = otp
+            request.session["otp_expiry"] = (datetime.datetime.now() + datetime.timedelta(minutes=5)).isoformat()
+            request.session["user_id"] = user.u_id  # Store the user_id in the session
+
+            # Send the OTP to the user's email
+            send_email(otp, email)
+            messages.success(request, "An OTP has been sent to your email.")
+            return redirect("enter_otp")
+
+        except UserAccount.DoesNotExist:
+            messages.error(request, "No account found with this email address.")
+            return redirect("send_otp")  # Redirect back to the OTP request page
+
+    return render(request, "forgot_password.html")  # Render the OTP request page 
+
+def enter_otp(request):
+    """Allow the user to enter OTP for verification"""
+    if request.method == "POST":
+        entered_otp = request.POST.get("otp")
+        session_otp = request.session.get("otp")
+        otp_expiry = request.session.get("otp_expiry")
+        user_id = request.session.get("user_id")
+
+        if not session_otp or datetime.datetime.now() > datetime.datetime.fromisoformat(otp_expiry):
+            messages.error(request, "OTP has expired or is invalid.")
+            return redirect("send_otp")  # Redirect to the OTP send page
+
+        if str(entered_otp) == str(session_otp):
+            return redirect("change_password")
+        else:
+            messages.error(request, "Invalid OTP.")
+            return redirect("enter_otp")  # Redirect back to the OTP verification page
+
+    return render(request, "enter_otp.html")  # Render OTP input page
+
+
+def change_password(request):
+    """Allow the user to change their password after OTP verification"""
+    if request.method == "POST":
+        password = request.POST.get("password")
+        confirm_password = request.POST.get("confirm_password")
+        user_id = request.session.get("user_id")
+
+        if password != confirm_password:
+            messages.error(request, "Passwords do not match.")
+            return redirect("change_password")  # Redirect back to the password change page
+
+        # Update the password in the database
+        user = UserAccount.objects.get(u_id=user_id)
+        user.hashed_password = encrypt(password, passwordUnique)  # You should hash the password before saving
+        user.save()
+        messages.success(request, "Password updated successfully!")
+        return redirect("home")  # Redirect to login page or wherever appropriate
+
+    return render(request, "change_password.html")  # Render password change form
+
+
 def require_faculty_login(view_func):
     """
     Decorator to ensure that the faculty_id is available in the session.
@@ -500,7 +566,7 @@ def reg_student(request):
                     # Insert into user_account table
                     cursor.execute(
                         "INSERT INTO user_account (username, hashed_password, student_id, email_verified) VALUES (%s, %s, %s, %s)",
-                        (username, hashed_password, sr_code, 'no'),
+                        (f"{sr_code}@g.batstate-u.edu.ph", hashed_password, sr_code, 'no'),
                     )
                     
                 request.session['student_email'] = f"{sr_code}@g.batstate-u.edu.ph"  
@@ -702,6 +768,9 @@ def student_everif(request):
     messages.success(request, "An OTP has been sent to your email.")
 
     return render(request, "student/s-everif.html", {"student_email": student_email, "student_srcode": student_srcode})
+
+
+
 
 def verify_otp(request):
     """Verify user input OTP"""

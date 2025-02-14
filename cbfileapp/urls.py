@@ -27,7 +27,10 @@ urlpatterns = [
     path('faculty_logout/', views.logout_faculty, name='faculty_logout'),
     path('f_dashboard/', views.read_html_f, name='f_dashboard'),
     path('faculty_folders/', views.faculty_folders, name='faculty_folders'),
-     path('view_folder_s/<str:folder_code>/', views.view_folder_s, name='view_folder_s'),
-     path('view_folder_f/<str:folder_code>/', views.view_folder_f, name='view_folder_f'),
+    path('view_folder_s/<str:folder_code>/', views.view_folder_s, name='view_folder_s'),
+    path('view_folder_f/<str:folder_code>/', views.view_folder_f, name='view_folder_f'),
+    path("forgot_password/", views.send_otp_pass, name="send_otp"),
+    path("enter_otp/", views.enter_otp, name="enter_otp"),
+    path("change_password/", views.change_password, name="change_password"),
 
 ]
