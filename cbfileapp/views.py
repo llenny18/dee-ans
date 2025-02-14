@@ -4,7 +4,7 @@ from django.contrib.auth import login
 from django.contrib import messages
 from django.db import connection
 from django.contrib.auth.hashers import check_password
-from .models import AdminLogs, StudentLogs, FacultyAccount, StudentFolderView, AdminLogs, FacultyAdminLogs, StudentActivityLogs, StudentAccount, UserAccount,FolderTns, FacultyFoldersView, StudentFolder, FolderFile
+from .models import AdminLogs, StudentLogs, FilesShared, SharedFilesView, FacultyAccount, StudentFolderView, AdminLogs, FacultyAdminLogs, StudentActivityLogs, StudentAccount, UserAccount,FolderTns, FacultyFoldersView, StudentFolder, FolderFile
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
@@ -268,14 +268,16 @@ def read_html_s(request):
 def view_folder_s(request, folder_code):
     student_id = request.session.get('student_id', None)
     full_name = request.session.get('s_fullname', None)
-    log_action('student', student_id, f'Viewed the files of the folder with code {folder_code}', request)
 
     # If there is no student_id in the session, redirect to the student login page
     if not student_id:
         return redirect(reverse('student_login'))
 
-    # Fetch all files for the given folder_code
-    folder_files = FolderFile.objects.filter(folder_code=folder_code)
+    # Fetch files uploaded by the student in the folder
+    uploaded_files = FolderFile.objects.filter(folder_code=folder_code)
+
+    # Fetch shared files that belong to this student
+    shared_files = SharedFilesView.objects.filter(folder_code=folder_code, student_id=student_id)
 
     if request.method == 'POST':
         # Handle the file upload form submission
@@ -294,11 +296,12 @@ def view_folder_s(request, folder_code):
             new_file.save()
             return redirect('view_folder_s', folder_code=folder_code)  # Redirect to the same folder view after upload
 
-    # Pass the session data and the folder files to the template
+    # Pass the session data and both sets of files to the template
     context = {
         'faculty_id': student_id,
         'full_name': full_name,
-        'folder_files': folder_files,
+        'uploaded_files': uploaded_files,
+        'shared_files': shared_files,
         'folder_code': folder_code,
     }
 
@@ -306,44 +309,58 @@ def view_folder_s(request, folder_code):
 
 
 
+
 def view_folder_f(request, folder_code):
     faculty_id = request.session.get('faculty_id', None)
     full_name = request.session.get('a_fullname', None)
-    log_action('admin', faculty_id, f'Viewed the files of the folder with code {folder_code}', request)
 
-    # If there is no student_id in the session, redirect to the student login page
     if not faculty_id:
         return redirect(reverse('faculty_login'))
 
-    # Fetch all files for the given folder_code
     folder_files = FolderFile.objects.filter(folder_code=folder_code)
+    students = StudentAccount.objects.all()
+    sharedfiles = SharedFilesView.objects.all().values_list('student_id', flat=True)
 
     if request.method == 'POST':
-        # Handle the file upload form submission
-        file_name = request.POST.get('file_name')
-        file_description = request.POST.get('file_description')
-        file_link = request.POST.get('file_link')
+        if 'upload_file' in request.POST:
+            # Handle File Upload
+            file_name = request.POST.get('file_name')
+            file_description = request.POST.get('file_description')
+            file_link = request.POST.get('file_link')
 
-        if file_name and file_link:
-            # Create a new FolderFile instance and save it
-            new_file = FolderFile(
-                folder_code=folder_code,
-                file_name=file_name,
-                file_description=file_description,
-                file_link=file_link
-            )
-            new_file.save()
-            return redirect('view_folder_f', folder_code=folder_code)  # Redirect to the same folder view after upload
+            if file_name and file_link:
+                new_file = FolderFile(
+                    folder_code=folder_code,
+                    file_name=file_name,
+                    file_description=file_description,
+                    file_link=file_link
+                )
+                new_file.save()
+                return redirect('view_folder_f', folder_code=folder_code)
 
-    # Pass the session data and the folder files to the template
+        elif 'share_file' in request.POST:
+            # Handle File Sharing
+            file_id = request.POST.get('file_id')
+            student_id = request.POST.get('student_id')
+
+            if file_id and student_id:
+                shared_file = FilesShared(folder_code=folder_code, file_id=file_id, student_id=student_id)
+                shared_file.save()
+
+    shared_files = FilesShared.objects.filter(folder_code=folder_code)
+
     context = {
         'faculty_id': faculty_id,
         'full_name': full_name,
         'folder_files': folder_files,
         'folder_code': folder_code,
+        'students': students,
+        'shared_files': shared_files,
+        'sharedfiles' : sharedfiles
     }
 
     return render(request, 'faculty/folder_contents.html', context)
+
 
 
 def fetch_data(query):

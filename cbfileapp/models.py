@@ -118,6 +118,7 @@ class FolderFile(models.Model):
     file_name = models.CharField(max_length=255)
     file_description = models.TextField(null=True, blank=True)
     file_link = models.CharField(max_length=255)
+    uploader_id = models.CharField(max_length=255)
 
     class Meta:
         db_table = 'folder_files'  # The table name in MySQL
@@ -215,3 +216,29 @@ class FacultyAccount(models.Model):
     class Meta:
         managed = False
         db_table = 'faculty_accounts'
+
+class SharedFilesView(models.Model):
+    share_id = models.IntegerField()
+    folder_code = models.CharField(max_length=255)
+    file_id = models.IntegerField()
+    file_name = models.CharField(max_length=255)
+    file_description = models.TextField()
+    file_link = models.URLField()
+    student_id = models.CharField(max_length=50)
+    first_name = models.CharField(max_length=255)
+    last_name = models.CharField(max_length=255)
+
+    class Meta:
+        managed = False  # Since this is a database view
+        db_table = 'shared_files_view'
+
+
+class FilesShared(models.Model):
+    share_id = models.AutoField(primary_key=True)
+    folder_code = models.CharField(max_length=255)
+    file_id = models.IntegerField()
+    student_id = models.CharField(max_length=11)
+
+    class Meta:
+        db_table = 'files_shared'
+        managed = False
