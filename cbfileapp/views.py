@@ -92,6 +92,10 @@ def send_otp_pass(request):
     return render(request, "forgot_password.html")  # Render the OTP request page 
 
 def enter_otp(request):
+    otp = request.session.get('otp', None)
+    if not otp:
+        return redirect(reverse('home'))  
+
     """Allow the user to enter OTP for verification"""
     if request.method == "POST":
         entered_otp = request.POST.get("otp")
@@ -113,6 +117,10 @@ def enter_otp(request):
 
 
 def change_password(request):
+    
+    otp = request.session.get('otp', None)
+    if not otp:
+        return redirect(reverse('home'))  
     """Allow the user to change their password after OTP verification"""
     if request.method == "POST":
         password = request.POST.get("password")
@@ -128,6 +136,7 @@ def change_password(request):
         user.hashed_password = encrypt(password, passwordUnique)  # You should hash the password before saving
         user.save()
         messages.success(request, "Password updated successfully!")
+        del request.session["otp"]
         return redirect("home")  # Redirect to login page or wherever appropriate
 
     return render(request, "change_password.html")  # Render password change form
