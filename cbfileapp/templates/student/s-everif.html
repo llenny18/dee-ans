@@ -117,7 +117,7 @@
               <p class="text-center">
                 
 <p id="countdown"></p>
-<button id="resendOtp" onclick="location.reload();" disabled>Resend OTP</button>
+<button id="resendOtp" onclick="location.reload();" disabled class="btn btn-danger">Resend OTP</button>
 
 <script>
     let expiryTime = new Date("{{ request.session.otp_expiry }}").getTime();
