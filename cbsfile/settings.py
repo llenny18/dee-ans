@@ -61,6 +61,10 @@ EMAIL_HOST_USER = 'dece.nas.system@gmail.com'  # Your email address
 EMAIL_HOST_PASSWORD = 'ngofjjhftcnxyefd'  # Your email password (use App Passwords for Gmail)
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
+MEDIA_ROOT = "Z:/"
+MEDIA_URL = "/media/"
+
+
 
 TEMPLATES = [
     {

@@ -54,16 +54,21 @@
 
   <body>
     <!-- Content -->
-
+ 
     <div class="container-xxl">
       <div class="authentication-wrapper authentication-basic container-p-y">
         <div class="authentication-inner">
-          <!-- Register -->
+              <!-- Register -->
           <div class="card">
             <div class="card-body">
               <!-- Logo -->
-             <img src="{% static 'assets/img/favicon/BatStateU-NEU-Logo.png' %}" style="width: 80%; margin: 40px;">
+               <div class="row">
+                <div class="col-md-6">
+    <a href="{% url 'home' %}" class="btn btn-danger "><i class="bx bx-left-arrow-circle" style="font-size: 25px"></i> &nbsp; Back to Home Page</a>
+             <img src="{% static 'assets/img/favicon/BatStateU-NEU-Logo.png' %}" style="width: 100%;">
               <!-- /Logo -->
+               </div>
+               <div class="col-md-6">
               <h4 class="mb-2">Welcome to NAStech Drive: Student </h4>
               <p class="mb-4">Please sign-in to your account and start managing your files</p>
 
@@ -99,12 +104,13 @@
                     <span class="input-group-text cursor-pointer"><i class="bx bx-hide"></i></span>
                   </div>
                 </div>
-                <hr>
+              
+               <hr>
                 {% csrf_token %}
                 {{ form.as_p }}  <!-- This will include the CAPTCHA image -->
             
                 <div class="mb-3">
-                  <button class="btn btn-primary d-grid w-100" type="submit">Sign in</button>
+                  <button class="btn btn-primary d-grid w-100" id="loginBtn" type="submit">Sign in</button>
                 </div>
               </form>
               {% if messages %}
@@ -117,7 +123,7 @@
 
 
               <p class="text-center">
-                <span>New on our platform?</span>
+                <span>New on our platform? {{locked_out}}</span>
                 <a href="{% url 'student_reg' %}">
                   <span>Create an account</span>
                 </a>
@@ -127,11 +133,36 @@
           <!-- /Register -->
         </div>
       </div>
+        </div>
+      </div>
     </div>
 
     <!-- / Content -->
 
- 
+    {% if locked_out %}
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            disableInputs();
+
+            // Re-enable inputs after 5 minutes
+            setTimeout(() => {
+                enableInputs();
+            }, 300000); // 5 minutes (300000 ms)
+        });
+
+        function disableInputs() {
+            document.getElementById('email').disabled = true;
+            document.getElementById('password').disabled = true;
+            document.getElementById('loginBtn').disabled = true;
+        }
+
+        function enableInputs() {
+            document.getElementById('email').disabled = false;
+            document.getElementById('password').disabled = false;
+            document.getElementById('loginBtn').disabled = false;
+        }
+    </script>
+{% endif %}
 
     <!-- Core JS -->
     <!-- build:js assets/vendor/js/core.js -->

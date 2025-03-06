@@ -10,6 +10,11 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
 import os
+from django.shortcuts import render
+from django.http import JsonResponse
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+from .models import FolderFile
 import base64
 from django.db.models import Prefetch
 from django.shortcuts import redirect
@@ -22,6 +27,9 @@ from django.utils.timezone import now
 from django.utils.crypto import get_random_string
 from django.db.models import Q, OuterRef, Subquery, Exists
 from django.http import HttpRequest
+
+from datetime import datetime, timedelta
+from django.utils.timezone import now
 
 def log_action(user_type: str, user_id: str, action: str, request: HttpRequest):
     """
@@ -216,75 +224,122 @@ passwordUnique = "hashedpassword143"
 def login_admin(request):
     form = MyForm(request.POST or None)
 
+    # Get login attempts from session
+    attempts = request.session.get('admin_login_attempts', 0)
+    lockout_time = request.session.get('admin_lockout_time')
+
+    # Check if user is locked out
+    if lockout_time and now() < datetime.fromisoformat(lockout_time):
+        return render(request, 'admin_p/a-login.html', {'form': form, 'locked_out': True})
+
+    if lockout_time and now() > datetime.fromisoformat(lockout_time):
+        request.session.flush()
+
     if request.method == 'POST':
-        # Validate CAPTCHA first
         if form.is_valid():
             username_or_email = request.POST.get('email-username')
             password = request.POST.get('password')
 
-            # Query the faculty account
             with connection.cursor() as cursor:
                 cursor.execute("""
-                    SELECT u_id, username, hashed_password  FROM user_account 
+                    SELECT u_id, username, hashed_password FROM user_account 
                     WHERE username = %s AND u_id = 111111
-                """, username_or_email)
+                """, [username_or_email])
                 faculty = cursor.fetchone()
 
             if faculty:
                 u_id, username, hashed_password = faculty
 
-                # Assuming hashed_password is already hashed and we compare it with the derived hash of the entered password
-                if decrypt(hashed_password, passwordUnique) == password:  # This comparison should check the plain password, not a hash
-                    request.session['admin_id'] = u_id  # Store session
-                    request.session['username'] = username  # Store session for a_fullname
+                if decrypt(hashed_password, passwordUnique) == password:
+                    request.session['admin_id'] = u_id  
+                    request.session['username'] = username  
+                    request.session.pop('admin_login_attempts', None)  # Reset attempts on success
+                    request.session.pop('admin_lockout_time', None)  # Remove lockout if present
                     log_action('admin', u_id, 'Logged In', request)
 
                     messages.success(request, "Login Successfully!")
-                    return redirect('a_dashboard')  # Change this to your admin dashboard view
+                    return redirect('a_dashboard')  
                 else:
                     messages.error(request, "Invalid password!")
             else:
                 messages.error(request, "User not found!")
 
-    context = {'form': form}
+            # Increment login attempts
+            attempts += 1
+            request.session['admin_login_attempts'] = attempts
+
+            # Lock the account after 3 failed attempts
+            if attempts >= 3:
+                lockout_time = now() + timedelta(minutes=5)
+                request.session['admin_lockout_time'] = lockout_time.isoformat()
+                messages.error(request, "Too many failed attempts. Try again in 5 minutes.")
+
+        else:
+            messages.error(request, "Invalid CAPTCHA! Please try again.")
+
+    context = {'form': form, 'locked_out': request.session.get('admin_lockout_time') is not None}
     return render(request, 'admin_p/a-login.html', context)
 
 
-# login_admin function
+
 def login_faculty(request):
     form = MyForm(request.POST or None)
 
+    # Get login attempts from session
+    attempts = request.session.get('faculty_login_attempts', 0)
+    lockout_time = request.session.get('faculty_lockout_time')
+
+    # Check if user is locked out
+    if lockout_time and now() < datetime.fromisoformat(lockout_time):
+        return render(request, 'faculty/a-login.html', {'form': form, 'locked_out': True})
+
+    if lockout_time and now() > datetime.fromisoformat(lockout_time):
+        request.session.flush()
     if request.method == 'POST':
-        # Validate CAPTCHA first
         if form.is_valid():
             username_or_email = request.POST.get('email-username')
             password = request.POST.get('password')
 
-            # Query the faculty account
             with connection.cursor() as cursor:
                 cursor.execute("""
-                    SELECT u_id, username, hashed_password, first_name, last_name, middle_name, faculty_id  FROM faculty_accounts 
-                    WHERE username = %s OR gsuite = %s 
+                    SELECT u_id, username, hashed_password, first_name, last_name, middle_name, faculty_id  
+                    FROM faculty_accounts 
+                    WHERE username = %s OR gsuite = %s
                 """, [username_or_email, username_or_email])
                 faculty = cursor.fetchone()
 
             if faculty:
                 u_id, username, hashed_password, first_name, middle_name, last_name, faculty_id = faculty
 
-                log_action('admin', u_id, 'Logged In', request)
-                # Assuming hashed_password is already hashed and we compare it with the derived hash of the entered password
-                if decrypt(hashed_password, passwordUnique) == password:  # This comparison should check the plain password, not a hash
-                    request.session['faculty_id'] = u_id  # Store session
-                    request.session['a_fullname'] = f"{first_name} {middle_name} {last_name}"  # Store session for a_fullname
+                if decrypt(hashed_password, passwordUnique) == password:
+                    request.session['faculty_id'] = u_id  
+                    request.session['a_fullname'] = f"{first_name} {middle_name} {last_name}"  
+                    request.session.pop('faculty_login_attempts', None)  # Reset attempts on success
+                    request.session.pop('faculty_lockout_time', None)  # Remove lockout if present
+                    log_action('admin', u_id, 'Logged In', request)
 
                     messages.success(request, "Login successful!")
-                    return redirect('f_dashboard')  # Change this to your admin dashboard view
+                    return redirect('f_dashboard')  
                 else:
                     messages.error(request, "Invalid password!")
             else:
                 messages.error(request, "User not found!")
 
-    context = {'form': form}
+            # Increment login attempts
+            attempts += 1
+            request.session['faculty_login_attempts'] = attempts
+
+            # Lock the account after 3 failed attempts
+            if attempts >= 3:
+                lockout_time = now() + timedelta(minutes=5)
+                request.session['faculty_lockout_time'] = lockout_time.isoformat()
+                messages.error(request, "Too many failed attempts. Try again in 5 minutes.")
+                log_action('admin', u_id, 'Logged In too many failed attempts, locked for 5 minutes', request)
+
+        else:
+            messages.error(request, "Invalid CAPTCHA! Please try again.")
+
+    context = {'form': form, 'locked_out': request.session.get('faculty_lockout_time') is not None}
     return render(request, 'faculty/a-login.html', context)
 
 def home(request):
@@ -340,101 +395,6 @@ def read_html_s(request):
 
     return render(request, 'student/index.html', context)
 
-def view_folder_s(request, folder_code):
-    student_id = request.session.get('student_id', None)
-    full_name = request.session.get('s_fullname', None)
-
-    # If there is no student_id in the session, redirect to the student login page
-    if not student_id:
-        return redirect(reverse('student_login'))
-
-    # Fetch files uploaded by the student in the folder
-    uploaded_files = FolderFile.objects.filter(folder_code=folder_code)
-
-    # Fetch shared files that belong to this student
-    shared_files = SharedFilesView.objects.filter(folder_code=folder_code, student_id=student_id)
-
-    if request.method == 'POST':
-        # Handle the file upload form submission
-        file_name = request.POST.get('file_name')
-        file_description = request.POST.get('file_description')
-        file_link = request.POST.get('file_link')
-
-        if file_name and file_link:
-            # Create a new FolderFile instance and save it
-            new_file = FolderFile(
-                folder_code=folder_code,
-                file_name=file_name,
-                file_description=file_description,
-                file_link=file_link
-            )
-            new_file.save()
-            return redirect('view_folder_s', folder_code=folder_code)  # Redirect to the same folder view after upload
-
-    # Pass the session data and both sets of files to the template
-    context = {
-        'faculty_id': student_id,
-        'full_name': full_name,
-        'uploaded_files': uploaded_files,
-        'shared_files': shared_files,
-        'folder_code': folder_code,
-    }
-
-    return render(request, 'student/folder_contents.html', context)
-
-
-
-
-def view_folder_f(request, folder_code):
-    faculty_id = request.session.get('faculty_id', None)
-    full_name = request.session.get('a_fullname', None)
-
-    if not faculty_id:
-        return redirect(reverse('faculty_login'))
-
-    folder_files = FolderFile.objects.filter(folder_code=folder_code)
-    students = StudentAccount.objects.all()
-    sharedfiles = SharedFilesView.objects.all().values_list('student_id', flat=True)
-
-    if request.method == 'POST':
-        if 'upload_file' in request.POST:
-            # Handle File Upload
-            file_name = request.POST.get('file_name')
-            file_description = request.POST.get('file_description')
-            file_link = request.POST.get('file_link')
-
-            if file_name and file_link:
-                new_file = FolderFile(
-                    folder_code=folder_code,
-                    file_name=file_name,
-                    file_description=file_description,
-                    file_link=file_link
-                )
-                new_file.save()
-                return redirect('view_folder_f', folder_code=folder_code)
-
-        elif 'share_file' in request.POST:
-            # Handle File Sharing
-            file_id = request.POST.get('file_id')
-            student_id = request.POST.get('student_id')
-
-            if file_id and student_id:
-                shared_file = FilesShared(folder_code=folder_code, file_id=file_id, student_id=student_id)
-                shared_file.save()
-
-    shared_files = FilesShared.objects.filter(folder_code=folder_code)
-
-    context = {
-        'faculty_id': faculty_id,
-        'full_name': full_name,
-        'folder_files': folder_files,
-        'folder_code': folder_code,
-        'students': students,
-        'shared_files': shared_files,
-        'sharedfiles' : sharedfiles
-    }
-
-    return render(request, 'faculty/folder_contents.html', context)
 
 
 
@@ -510,16 +470,26 @@ def logout_student(request):
 def reg_admin(request):
     return render(request, 'admin_p/a-register.html')
 
+
 def login_student(request):
     form = MyForm(request.POST or None)
 
+    # Get login attempts from session
+    attempts = request.session.get('login_attempts', 0)
+    lockout_time = request.session.get('lockout_time')
+
+    # Check if user is locked out
+    if lockout_time and now() < datetime.fromisoformat(lockout_time):
+        return render(request, 'student/s-login.html', {'form': form, 'locked_out': True})
+
+    if lockout_time and now() > datetime.fromisoformat(lockout_time):
+        request.session.flush()
+
     if request.method == 'POST':
-        # Validate CAPTCHA first
         if form.is_valid():
             username_or_email = request.POST.get('email-username')
             password = request.POST.get('password')
 
-            # Query the faculty account
             with connection.cursor() as cursor:
                 cursor.execute("""
                     SELECT u_id, username, hashed_password, first_name, last_name, middle_name, student_id  
@@ -531,10 +501,11 @@ def login_student(request):
             if faculty:
                 u_id, username, hashed_password, first_name, middle_name, last_name, student_id = faculty
 
-                # Check password
-                if decrypt(hashed_password, passwordUnique) == password:  
+                if decrypt(hashed_password, passwordUnique) == password:
                     request.session['student_id'] = student_id  
                     request.session['s_fullname'] = f"{first_name} {middle_name} {last_name}"
+                    request.session.pop('login_attempts', None)  # Reset attempts on success
+                    request.session.pop('lockout_time', None)  # Remove lockout if present
                     log_action('student', student_id, 'Logged in', request)
 
                     messages.success(request, "Login successful!")
@@ -543,11 +514,24 @@ def login_student(request):
                     messages.error(request, "Invalid password!")
             else:
                 messages.error(request, "User not found!")
-        else:
-            messages.error(request, "Invalid CAPTCHA! Please try again.")  # CAPTCHA failed
 
-    context = {'form': form}
+            # Increment login attempts
+            attempts += 1
+            request.session['login_attempts'] = attempts
+
+            # Lock the account after 3 attempts
+            if attempts >= 3:
+                lockout_time = now() + timedelta(minutes=5)
+                request.session['lockout_time'] = lockout_time.isoformat()
+                messages.error(request, "Too many failed attempts. Try again in 5 minutes.")
+                log_action('student', student_id, 'Logged In too many failed attempts, locked for 5 minutes', request)
+
+        else:
+            messages.error(request, "Invalid CAPTCHA! Please try again.")
+
+    context = {'form': form, 'locked_out': request.session.get('lockout_time') is not None}
     return render(request, 'student/s-login.html', context)
+
 
 def reg_student(request):
     form = MyForm(request.POST or None)
@@ -809,3 +793,176 @@ def verify_otp(request):
         else:
             messages.error(request, "Invalid OTP. Try again.")
             return redirect("student_everif")
+
+
+
+
+def view_folder_s(request, folder_code):
+    student_id = request.session.get('student_id', None)
+    full_name = request.session.get('s_fullname', None)
+
+    # If there is no student_id in the session, redirect to the student login page
+    if not student_id:
+        return redirect(reverse('student_login'))
+
+    # Fetch files uploaded by the student in the folder
+    uploaded_files = FolderFile.objects.filter(folder_code=folder_code)
+
+    if request.method == 'POST':
+        # Handle the file upload form submission
+        file_name = request.POST.get('file_name')
+        file_description = request.POST.get('file_description')
+        file_link = request.POST.get('file_link')
+
+        if file_name and file_link:
+            # Create a new FolderFile instance and save it
+            new_file = FolderFile(
+                folder_code=folder_code,
+                file_name=file_name,
+                file_description=file_description,
+                file_link=file_link
+            )
+            new_file.save()
+            return redirect('view_folder_s', folder_code=folder_code)  # Redirect to the same folder view after upload
+
+    # Pass the session data and both sets of files to the template
+    context = {
+        'faculty_id': student_id,
+        'full_name': full_name,
+        'uploaded_files': uploaded_files,
+        'folder_code': folder_code,
+    }
+
+    return render(request, 'student/folder_contents.html', context)
+
+
+
+import os
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse, FileResponse
+from django.core.files.storage import FileSystemStorage
+from django.conf import settings
+from .models import FolderFile, FilesShared, StudentAccount
+
+def view_folder_s(request, folder_code):
+    student_id = request.session.get('student_id', None)
+    full_name = request.session.get('s_fullname', None)
+
+    if not student_id:
+        return redirect(reverse('student_login'))
+
+    uploaded_files = FolderFile.objects.filter(folder_code=folder_code, uploader_id=student_id)
+
+    if request.method == 'POST' and request.FILES.get("file"):
+        file = request.FILES["file"]
+        file_description = request.POST.get('file_description')
+
+        # Save file in TrueNAS
+        folder_path = os.path.join(settings.MEDIA_ROOT, folder_code)
+        os.makedirs(folder_path, exist_ok=True)
+
+        fs = FileSystemStorage(location=folder_path)
+        file_name = fs.save(file.name, file)
+
+        # Store filename in MySQL
+        new_file = FolderFile.objects.create(
+            folder_code=folder_code,
+            file_name=file_name,
+            file_description=file_description,
+            file_link=f"{folder_code}/{file_name}",
+            uploader_id=student_id
+        )
+
+        return redirect('view_folder_s', folder_code=folder_code)
+
+    context = {
+        'student_id': student_id,
+        'full_name': full_name,
+        'uploaded_files': uploaded_files,
+        'folder_code': folder_code,
+    }
+    return render(request, 'student/folder_contents.html', context)
+
+def view_folder_f(request, folder_code):
+    faculty_id = request.session.get('faculty_id', None)
+    full_name = request.session.get('a_fullname', None)
+
+    if not faculty_id:
+        return redirect(reverse('faculty_login'))
+
+    folder_files = FolderFile.objects.filter(folder_code=folder_code)
+    students = StudentAccount.objects.all()
+    shared_files = FilesShared.objects.filter(folder_code=folder_code)
+
+    if request.method == 'POST':
+        if 'upload_file' in request.POST and request.FILES.get("file"):
+            file = request.FILES["file"]
+            file_description = request.POST.get('file_description')
+
+            # Save file in TrueNAS
+            folder_path = os.path.join(settings.MEDIA_ROOT, folder_code)
+            os.makedirs(folder_path, exist_ok=True)
+
+            fs = FileSystemStorage(location=folder_path)
+            file_name = fs.save(file.name, file)
+
+            # Store filename in MySQL
+            new_file = FolderFile.objects.create(
+                folder_code=folder_code,
+                file_name=file_name,
+                file_description=file_description,
+                file_link=f"{folder_code}/{file_name}",
+                uploader_id=faculty_id
+            )
+
+            return redirect('view_folder_f', folder_code=folder_code)
+
+        elif 'share_file' in request.POST:
+            file_id = request.POST.get('file_id')
+            student_id = request.POST.get('student_id')
+
+            if file_id and student_id:
+                shared_file = FilesShared.objects.create(
+                    folder_code=folder_code,
+                    file_id=file_id,
+                    student_id=student_id
+                )
+
+    context = {
+        'faculty_id': faculty_id,
+        'full_name': full_name,
+        'folder_files': folder_files,
+        'folder_code': folder_code,
+        'students': students,
+        'shared_files': shared_files,
+    }
+    return render(request, 'faculty/folder_contents.html', context)
+
+def download_file(request, folder_code, file_name):
+    file_path = os.path.join(settings.MEDIA_ROOT, folder_code, file_name)
+
+    if not os.path.exists(file_path):
+        return JsonResponse({"error": "File not found"}, status=404)
+
+    return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=file_name)
+
+def list_files(request):
+    files = FolderFile.objects.all()
+    return render(request, "list_files.html", {"files": files})
+
+
+
+
+def download_file(request, file_id):
+    file_obj = get_object_or_404(FolderFile, file_id=file_id)
+    file_path = os.path.join(settings.MEDIA_ROOT, file_obj.file_link)
+
+    if os.path.exists(file_path):
+        with open(file_path, "rb") as file:
+            response = HttpResponse(file.read(), content_type="application/octet-stream")
+            response["Content-Disposition"] = f'attachment; filename="{file_obj.file_name}"'
+            return response
+
+    return HttpResponse("File not found", status=404)
+
+

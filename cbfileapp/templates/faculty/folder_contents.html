@@ -135,52 +135,8 @@
                                   <p>Unsupported file type</p>
                               {% endif %}
                               <hr>
-                              <button class="btn btn-primary">Download</button>
-                             <!-- Share File Modal -->
-<div class="modal fade" id="shareFileModal{{ file.file_id }}" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Share File</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form method="POST">
-          {% csrf_token %}
-          <input type="hidden" name="file_id" value="{{ file.file_id }}">
-          
-          <div class="mb-3">
-            <label for="student_id" class="form-label">Select Student</label>
-            <select name="student_id" id="student_id" class="form-control" required>
-              <option value="" disabled selected>Select a student</option>
-              {% for student in students %}
-              {% if student.student_id !=  file.uploader_id %}
-              {% if student.student_id not in sharedfiles %}
-                <option value="{{ student.student_id }}">{{ student.first_name }} {{ student.middle_name }} {{ student.last_name }}</option>
-              {% endif %}
-              {% endif %}
-              {% endfor %}
-            </select>
-          </div>
-          
-          <div class="modal-footer">
-            <button type="submit" name="share_file" class="btn btn-success">Share</button>
-          </div>
-        </form>
-      </div>
-    </div>
-  </div>
-</div>
+                              <a href="{% url 'download_file' folder_code=file.folder_code file_name=file.file_name %}">Download</a>
 
-<!-- Button to Open Share Modal -->
-<button
-  type="button"
-  class="btn btn-success"
-  data-bs-toggle="modal"
-  data-bs-target="#shareFileModal{{ file.file_id }}"
->
-  Share
-</button>
 
                               </div>
                           </div>

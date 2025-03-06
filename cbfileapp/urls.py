@@ -32,5 +32,7 @@ urlpatterns = [
     path("forgot_password/", views.send_otp_pass, name="send_otp"),
     path("enter_otp/", views.enter_otp, name="enter_otp"),
     path("change_password/", views.change_password, name="change_password"),
+    path('download/<str:folder_code>/<str:file_name>/', views.download_file, name='download_file'),
+    path('files/', views.list_files, name='list_files')
 
 ]
