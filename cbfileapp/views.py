@@ -1,35 +1,43 @@
-from django.db import connection
-from django.shortcuts import render, redirect
-from django.contrib.auth import login
-from django.contrib import messages
-from django.db import connection
-from django.contrib.auth.hashers import check_password
-from .models import AdminLogs, StudentLogs, FilesShared, SharedFilesView, FacultyAccount, StudentFolderView, AdminLogs, FacultyAdminLogs, StudentActivityLogs, StudentAccount, UserAccount,FolderTns, FacultyFoldersView, StudentFolder, FolderFile
+# Django core imports
+from django.db import connection  # For raw SQL queries
+from django.shortcuts import render, redirect, get_object_or_404  # Rendering templates and handling redirects
+from django.contrib.auth import login  # Handling user authentication
+from django.contrib import messages  # Flash messages for notifications
+from django.contrib.auth.hashers import check_password  # Password hashing and verification
+from django.core.files.storage import FileSystemStorage  # Handling file uploads
+from django.conf import settings  # Accessing Django settings
+from django.http import JsonResponse, FileResponse, HttpRequest  # JSON responses, file downloads, and HTTP requests
+from django.urls import reverse  # URL handling
+from django.core.mail import send_mail  # Sending emails
+from django.utils.timezone import now  # Handling timezone-aware datetime
+from django.utils.crypto import get_random_string  # Generating secure random strings
+
+# Django ORM imports
+from django.db.models import Prefetch, Q, OuterRef, Subquery, Exists  # Query optimization and filtering
+
+# Models
+from .models import (
+    AdminLogs, StudentLogs, FilesShared, SharedFilesView, 
+    FacultyAccount, StudentFolderView, FacultyAdminLogs, 
+    StudentActivityLogs, StudentAccount, UserAccount, 
+    FolderTns, FacultyFoldersView, StudentFolder, FolderFile
+)
+
+# Forms
+from .forms import MyForm  # Importing custom form
+
+# Cryptography imports
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.backends import default_backend
-import os
-from django.shortcuts import render
-from django.http import JsonResponse
-from django.core.files.storage import FileSystemStorage
-from django.conf import settings
-from .models import FolderFile
-import base64
-from django.db.models import Prefetch
-from django.shortcuts import redirect
-from django.urls import reverse
-from django.core.mail import send_mail
-from .forms import MyForm
-import random
-import datetime
-from django.utils.timezone import now
-from django.utils.crypto import get_random_string
-from django.db.models import Q, OuterRef, Subquery, Exists
-from django.http import HttpRequest
 
-from datetime import datetime, timedelta
-from django.utils.timezone import now
+# Python standard library imports
+import os  # OS-level operations
+import base64  # Encoding and decoding
+import random  # Random number generation
+from datetime import datetime, timedelta  # Date and time handling
+
 
 def log_action(user_type: str, user_id: str, action: str, request: HttpRequest):
     """
@@ -795,63 +803,14 @@ def verify_otp(request):
             return redirect("student_everif")
 
 
-
-
 def view_folder_s(request, folder_code):
     student_id = request.session.get('student_id', None)
     full_name = request.session.get('s_fullname', None)
 
-    # If there is no student_id in the session, redirect to the student login page
     if not student_id:
         return redirect(reverse('student_login'))
 
-    # Fetch files uploaded by the student in the folder
     uploaded_files = FolderFile.objects.filter(folder_code=folder_code)
-
-    if request.method == 'POST':
-        # Handle the file upload form submission
-        file_name = request.POST.get('file_name')
-        file_description = request.POST.get('file_description')
-        file_link = request.POST.get('file_link')
-
-        if file_name and file_link:
-            # Create a new FolderFile instance and save it
-            new_file = FolderFile(
-                folder_code=folder_code,
-                file_name=file_name,
-                file_description=file_description,
-                file_link=file_link
-            )
-            new_file.save()
-            return redirect('view_folder_s', folder_code=folder_code)  # Redirect to the same folder view after upload
-
-    # Pass the session data and both sets of files to the template
-    context = {
-        'faculty_id': student_id,
-        'full_name': full_name,
-        'uploaded_files': uploaded_files,
-        'folder_code': folder_code,
-    }
-
-    return render(request, 'student/folder_contents.html', context)
-
-
-
-import os
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, FileResponse
-from django.core.files.storage import FileSystemStorage
-from django.conf import settings
-from .models import FolderFile, FilesShared, StudentAccount
-
-def view_folder_s(request, folder_code):
-    student_id = request.session.get('student_id', None)
-    full_name = request.session.get('s_fullname', None)
-
-    if not student_id:
-        return redirect(reverse('student_login'))
-
-    uploaded_files = FolderFile.objects.filter(folder_code=folder_code, uploader_id=student_id)
 
     if request.method == 'POST' and request.FILES.get("file"):
         file = request.FILES["file"]
@@ -951,18 +910,5 @@ def list_files(request):
     return render(request, "list_files.html", {"files": files})
 
 
-
-
-def download_file(request, file_id):
-    file_obj = get_object_or_404(FolderFile, file_id=file_id)
-    file_path = os.path.join(settings.MEDIA_ROOT, file_obj.file_link)
-
-    if os.path.exists(file_path):
-        with open(file_path, "rb") as file:
-            response = HttpResponse(file.read(), content_type="application/octet-stream")
-            response["Content-Disposition"] = f'attachment; filename="{file_obj.file_name}"'
-            return response
-
-    return HttpResponse("File not found", status=404)
 
 

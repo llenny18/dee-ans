@@ -135,7 +135,7 @@
                                   <p>Unsupported file type</p>
                               {% endif %}
                               <hr>
-                              <a href="{% url 'download_file' folder_code=file.folder_code file_name=file.file_name %}">Download</a>
+                              <a class="btn btn-success" href="{% url 'download_file' folder_code=file.folder_code file_name=file.file_name %}">Download</a>
 
 
                               </div>
