@@ -62,8 +62,15 @@
           <div class="card">
             <div class="card-body">
               <!-- Logo -->
-             <img src="{% static 'assets/img/favicon/BatStateU-NEU-Logo.png' %}" style="width: 80%; margin: 40px;">
-              <!-- /Logo -->
+              <div class="row">
+                <div class="col-md-6">
+               
+                <!-- Logo -->
+      <a href="{% url 'home' %}" class="btn btn-danger "><i class="bx bx-left-arrow-circle" style="font-size: 25px"></i> &nbsp; Back to Home Page</a>
+                <img src="{% static 'assets/img/favicon/BatStateU-NEU-Logo.png' %}" style="width: 100%; ">
+                </div>
+                <!-- /Logo -->
+                <div class="col-md-6">
               <h4 class="mb-2">Verify Your Email Here </h4>
 
               <form id="formAuthentication" class="mb-3" action="{% url 'verify_otp' %}" method="POST">
@@ -147,6 +154,8 @@
         </div>
       </div>
     </div>
+    </div>
+  </div>
 
     <!-- / Content -->
 

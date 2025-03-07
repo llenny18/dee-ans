@@ -36,7 +36,7 @@ from cryptography.hazmat.backends import default_backend
 import os  # OS-level operations
 import base64  # Encoding and decoding
 import random  # Random number generation
-from datetime import datetime, timedelta  # Date and time handling
+import datetime  # Date and time handling
 
 
 def log_action(user_type: str, user_id: str, action: str, request: HttpRequest):
@@ -804,19 +804,19 @@ def verify_otp(request):
 
 
 def view_folder_s(request, folder_code):
-    student_id = request.session.get('student_id', None)
-    full_name = request.session.get('s_fullname', None)
+    student_id = request.session.get('student_id')
+    full_name = request.session.get('s_fullname')
 
     if not student_id:
         return redirect(reverse('student_login'))
 
     uploaded_files = FolderFile.objects.filter(folder_code=folder_code)
 
-    if request.method == 'POST' and request.FILES.get("file"):
-        file = request.FILES["file"]
-        file_description = request.POST.get('file_description')
+    if request.method == 'POST' and request.FILES.get("file_link"):
+        file = request.FILES["file_link"]
+        file_description = request.POST.get('file_description', '')
 
-        # Save file in TrueNAS
+        # Save file in TrueNAS (or local media storage)
         folder_path = os.path.join(settings.MEDIA_ROOT, folder_code)
         os.makedirs(folder_path, exist_ok=True)
 
@@ -828,11 +828,11 @@ def view_folder_s(request, folder_code):
             folder_code=folder_code,
             file_name=file_name,
             file_description=file_description,
-            file_link=f"{folder_code}/{file_name}",
+            file_link=os.path.join(folder_code, file_name).replace("\\", "/"),
             uploader_id=student_id
         )
 
-        return redirect('view_folder_s', folder_code=folder_code)
+        return redirect(reverse('view_folder_s', kwargs={'folder_code': folder_code}))
 
     context = {
         'student_id': student_id,
@@ -842,9 +842,11 @@ def view_folder_s(request, folder_code):
     }
     return render(request, 'student/folder_contents.html', context)
 
+
+
 def view_folder_f(request, folder_code):
-    faculty_id = request.session.get('faculty_id', None)
-    full_name = request.session.get('a_fullname', None)
+    faculty_id = request.session.get('faculty_id')
+    full_name = request.session.get('a_fullname')
 
     if not faculty_id:
         return redirect(reverse('faculty_login'))
@@ -854,11 +856,11 @@ def view_folder_f(request, folder_code):
     shared_files = FilesShared.objects.filter(folder_code=folder_code)
 
     if request.method == 'POST':
-        if 'upload_file' in request.POST and request.FILES.get("file"):
-            file = request.FILES["file"]
-            file_description = request.POST.get('file_description')
+        if 'upload_file' in request.POST and request.FILES.get("file_link"):
+            file = request.FILES["file_link"]
+            file_description = request.POST.get('file_description', '')
 
-            # Save file in TrueNAS
+            # Save file in TrueNAS (or local media storage)
             folder_path = os.path.join(settings.MEDIA_ROOT, folder_code)
             os.makedirs(folder_path, exist_ok=True)
 
@@ -870,11 +872,11 @@ def view_folder_f(request, folder_code):
                 folder_code=folder_code,
                 file_name=file_name,
                 file_description=file_description,
-                file_link=f"{folder_code}/{file_name}",
+                file_link=os.path.join(folder_code, file_name).replace("\\", "/"),
                 uploader_id=faculty_id
             )
 
-            return redirect('view_folder_f', folder_code=folder_code)
+            return redirect(reverse('view_folder_f', kwargs={'folder_code': folder_code}))
 
         elif 'share_file' in request.POST:
             file_id = request.POST.get('file_id')
@@ -896,7 +898,7 @@ def view_folder_f(request, folder_code):
         'shared_files': shared_files,
     }
     return render(request, 'faculty/folder_contents.html', context)
-
+    
 def download_file(request, folder_code, file_name):
     file_path = os.path.join(settings.MEDIA_ROOT, folder_code, file_name)
 
@@ -905,10 +907,7 @@ def download_file(request, folder_code, file_name):
 
     return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=file_name)
 
+
 def list_files(request):
     files = FolderFile.objects.all()
     return render(request, "list_files.html", {"files": files})
-
-
-
-

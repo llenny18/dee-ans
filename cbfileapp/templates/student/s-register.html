@@ -60,10 +60,16 @@
           <!-- Register Card -->
           <div class="card">
             <div class="card-body">
+              <div class="row">
+              <div class="col-md-6">
+             
               <!-- Logo -->
-              <img src="{% static 'assets/img/favicon/BatStateU-NEU-Logo.png' %}" style="width: 80%; margin: 40px;">
+    <a href="{% url 'home' %}" class="btn btn-danger "><i class="bx bx-left-arrow-circle" style="font-size: 25px"></i> &nbsp; Back to Home Page</a>
+              <img src="{% static 'assets/img/favicon/BatStateU-NEU-Logo.png' %}" style="width: 100%; ">
+              </div>
               <!-- /Logo -->
-              <h4 class="mb-2">Register now: NAStech Drive: Student</h4>
+              <div class="col-md-6">
+                <h4 class="mb-2">Register now: NAStech Drive: Student</h4>
               <hr>
 
               <form id="formAuthentication" class="mb-3" action="{% url 'student_reg' %}" method="POST">
@@ -123,7 +129,8 @@
         </div>
       </div>
     </div>
-
+  </div>
+</div>
     <!-- / Content -->
 
  

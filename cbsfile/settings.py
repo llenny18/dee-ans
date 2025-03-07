@@ -58,7 +58,7 @@ EMAIL_HOST = 'smtp.gmail.com'  # SMTP server (e.g., Gmail, Outlook, etc.)
 EMAIL_PORT = 587  # SMTP port (TLS: 587, SSL: 465)
 EMAIL_USE_TLS = True  # Use TLS encryption (recommended)
 EMAIL_HOST_USER = 'dece.nas.system@gmail.com'  # Your email address
-EMAIL_HOST_PASSWORD = 'ngofjjhftcnxyefd'  # Your email password (use App Passwords for Gmail)
+EMAIL_HOST_PASSWORD = 'qryu golh eimk guer'  # Your email password (use App Passwords for Gmail)
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 MEDIA_ROOT = "Z:/"
