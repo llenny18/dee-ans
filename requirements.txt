@@ -1,0 +1,6 @@
+Python
+django
+cryptography
+mysqlclient
+django-simple-captcha
+python-decouple

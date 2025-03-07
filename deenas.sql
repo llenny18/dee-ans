@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Mar 06, 2025 at 07:14 AM
+-- Generation Time: Mar 07, 2025 at 02:50 AM
 -- Server version: 11.7.2-MariaDB
 -- PHP Version: 8.2.12
 
@@ -188,6 +188,48 @@ CREATE TABLE `captcha_captchastore` (
   `expiration` datetime(6) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `captcha_captchastore`
+--
+
+INSERT INTO `captcha_captchastore` (`id`, `challenge`, `response`, `hashkey`, `expiration`) VALUES
+(201, 'YYSR', 'yysr', '67fcef3c8be79b15b4167727c957a2cf35b9b5dc', '2025-03-07 01:12:01.143005'),
+(202, 'VDMM', 'vdmm', 'e3accdccee77296950659cb591a41efd42cd43ca', '2025-03-07 01:12:37.229556'),
+(203, 'LDAR', 'ldar', 'ebb95b56c9b78f7d3c83cbad23b0944f8c03c638', '2025-03-07 01:12:54.161223'),
+(204, 'ERDZ', 'erdz', '7975943f1a42bd265e733ce3c308d2bb381558fb', '2025-03-07 01:13:00.038322'),
+(205, 'WAUI', 'waui', 'b35d83929e80e2eb686e399fb071033d0d9767f8', '2025-03-07 01:13:08.872637'),
+(206, 'ZZJV', 'zzjv', '58be5e4e9ca958b05d7d4d9541bbc0ba3b2fe1f0', '2025-03-07 01:13:18.525387'),
+(207, 'JCWZ', 'jcwz', '4c446f150ac4cfd6026d7b110de1d09b907a29e8', '2025-03-07 01:13:46.410116'),
+(208, 'YTGJ', 'ytgj', '0485314b0f8126d84707eed615cb1ed270904d9b', '2025-03-07 01:13:52.763925'),
+(209, 'TAKY', 'taky', '88194b64b50f64b52c7bc9d683dfa85402f73d21', '2025-03-07 01:14:03.868061'),
+(210, 'JKXO', 'jkxo', '34021152125b46fc35a05fd9a9b68a012ccd8504', '2025-03-07 01:14:08.482687'),
+(211, 'NRCS', 'nrcs', 'bd6ac1b7d9619849dd25541b41346fb5bafc0046', '2025-03-07 01:14:21.343055'),
+(212, 'FAZB', 'fazb', 'db14e25660eef60e49507ac4c0a04238f3b4df16', '2025-03-07 01:14:28.858935'),
+(213, 'NFLH', 'nflh', 'a0c2f60a98c5566d3560b7e45b412d4c2b772bff', '2025-03-07 01:14:33.216304'),
+(214, 'OQJO', 'oqjo', 'd45fa6a8f6b4ffeec662cc1fbc1de0eb6caeb22f', '2025-03-07 01:14:58.668710'),
+(215, 'IANJ', 'ianj', 'd4a6070881e2746b926918f423887a9e872b4d0d', '2025-03-07 01:16:34.272976'),
+(216, 'GUBC', 'gubc', 'd7cf2164583e3cf636b2ab2097da6c157bd5f312', '2025-03-07 01:16:43.834319'),
+(217, 'OCUS', 'ocus', '995696b93942920d75564e09ca25a2979438c542', '2025-03-07 01:17:41.309228'),
+(218, 'WTYZ', 'wtyz', '948eea60f5844dbacaf1e96a47ebf7460cbc5170', '2025-03-07 01:17:49.700478'),
+(219, 'GXYQ', 'gxyq', 'd75b364abd0dc686b29319dba396b9307ecf334f', '2025-03-07 01:18:02.309972'),
+(220, 'HVBX', 'hvbx', '01d495be9b4f6909d0ad12fcf55c4b27c24a3800', '2025-03-07 01:20:55.704672'),
+(221, 'INSF', 'insf', 'c374bfd4582ed1e6605543ed03761dc5d699c38a', '2025-03-07 01:21:55.139908'),
+(222, 'BWNH', 'bwnh', '85663de0ae4baaee7b54d2c3b871288b2833a747', '2025-03-07 01:21:58.308619'),
+(223, 'NKRH', 'nkrh', 'f912787a02e10de8d95b51b5144534f7f67eaf5d', '2025-03-07 01:22:21.520428'),
+(224, 'IRIB', 'irib', 'cb46deb87558361849eb619a49f3a70b3ed0c1bf', '2025-03-07 01:22:56.182414'),
+(225, 'BLGF', 'blgf', 'bf0834f6fc0e1a73eb8b496c7f299ce3a971272e', '2025-03-07 01:23:07.140351'),
+(226, 'AGJT', 'agjt', '1d170c898924d690b44c3b1435ac102eabbcb17c', '2025-03-07 01:23:25.470370'),
+(227, 'WJKX', 'wjkx', '04b93736f910f7d146eb5b40978eebefa8363d82', '2025-03-07 01:23:42.690080'),
+(228, 'EMGL', 'emgl', 'afb75ab921da2d76e49ff2d64269f08a154ebd0e', '2025-03-07 01:23:59.087200'),
+(229, 'DHHQ', 'dhhq', 'c564e637e964107a9886c57c7bd3fa0b5b0130a8', '2025-03-07 01:24:13.488773'),
+(230, 'WPQE', 'wpqe', '86e11a4f6b5ef9f04e53411c653baa24940eeed0', '2025-03-07 01:24:20.752959'),
+(231, 'XNVM', 'xnvm', '8d5bfe738bf098c8ebda31cecd6f33466eb9d039', '2025-03-07 01:24:29.050002'),
+(232, 'DSFI', 'dsfi', 'a7988c90cd824b71f637e2f98c3cf2678ed688f5', '2025-03-07 01:24:44.659830'),
+(233, 'GWPX', 'gwpx', '039ed49fb016a9435648cdf48752853b51954b36', '2025-03-07 01:24:52.758867'),
+(234, 'ZDEV', 'zdev', '9cbb8095b1c0fdfd8481997a2cf1bd1bbe4c4f96', '2025-03-07 01:35:20.726810'),
+(235, 'XFFR', 'xffr', '6200efe66221bd6fcdfa44269843ca43ad7b4161', '2025-03-07 01:37:31.084895'),
+(236, 'EOVC', 'eovc', 'ab27aa8b055d227b06da0a0e592305f49ec457e1', '2025-03-07 01:38:07.001334');
+
 -- --------------------------------------------------------
 
 --
@@ -286,7 +328,7 @@ CREATE TABLE `django_session` (
 --
 
 INSERT INTO `django_session` (`session_key`, `session_data`, `expire_date`) VALUES
-('0b4pujfdhibyid6ciezvezg34kgzetqd', 'eyJzdHVkZW50X2lkIjoiMTktMDA3MTkiLCJzX2Z1bGxuYW1lIjoiSkFQSEVUICBBR0JBWSBDLiJ9:1tq4DM:xPRUgNBjsroGfUIWlebnC_T9XGyN9o3VIyNNyBWoiiA', '2025-03-20 05:56:12.582916'),
+('0b4pujfdhibyid6ciezvezg34kgzetqd', '.eJxNi70OgjAURl-FdNU291IotpNojMbJgcWJVFuVhL_QNtEY312IDozfOed7E-eDsa0vK0MUQUkBMpRkSVx5C3Xd6saO_JifDrsiivL9Jj9HWzb5_882uqrHJEbKE85hfWcX7Z3X3tLArAmsf8xyN1w7Y2f96DrfT0AkCOI3S_vsq-E1UYhTCpxCVgAqRMVXjCdCyHQBoADI5ws-cTdC:1tqMAk:iZA6qTcfEMSrpVzverlWG5jWCtXk1Bot0mWnyfiNYL8', '2025-03-21 01:06:42.119715'),
 ('0e4a7py6xooqyrdjnm5ebk05xjmd4cei', 'eyJzdHVkZW50X2lkIjoiMjEtMDg0MjAiLCJzX2Z1bGxuYW1lIjoiRXJpY2EgTWlzY2hlbGxlIEFyYW5kYSAifQ:1tiNxu:-L2sYH0iie7OSMvbfScNtH89_oJdxjJlidEVZMgHWSM', '2025-02-27 01:24:30.614533'),
 ('ca4f9zivpgl6fdftqnsy0g8oxzmrguc0', 'eyJmYWN1bHR5X2lkIjoxLCJhX2Z1bGxuYW1lIjoiUmFscGggR2VyYXJkIFNhbmdhbGFuZyAifQ:1tntb2:XKGVfpXsDRIZY-YGpgEAlEzNO0-JSf4xeTmSWmbWGkw', '2025-03-14 06:11:40.064335');
 
@@ -390,16 +432,6 @@ CREATE TABLE `folder_files` (
   `uploader_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
---
--- Dumping data for table `folder_files`
---
-
-INSERT INTO `folder_files` (`file_id`, `folder_code`, `file_name`, `file_description`, `file_link`, `uploader_id`) VALUES
-(1, '9DYvkdd0Mx', 'dsfsd', 'fdsfs', 'https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf', 0),
-(2, '9DYvkdd0Mx', 'rty', 'rtyrt', 'ytyrt.pdf', 0),
-(3, 'dfgdfgd', 'dfgdf', 'gdfgdf', 'hgfghfgh.png', 0),
-(4, 'dfgdfgd', 'yrtyrt', 'yrtyrtyrt', 'yrt.jpg', 0);
-
 -- --------------------------------------------------------
 
 --
@@ -415,16 +447,6 @@ CREATE TABLE `folder_tns` (
   `faculty_id` int(11) NOT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `folder_tns`
---
-
-INSERT INTO `folder_tns` (`id`, `folder_name`, `description`, `unique_code`, `apicode`, `faculty_id`, `created_at`) VALUES
-(1, 'TRYMUNA', 'SADASD', 'DFG3545', 'dfgdfgdfgdf', 2, '2025-02-05 15:16:18'),
-(2, 'dfgdfgdfg', 'rdfgdf', 'dfgdfgd', 'tuyhjkhjk', 1, '2025-02-05 15:16:18'),
-(3, 'dfgdf', 'gdfgdfg', '9rX0RjpOVi', 'dfgdfgdfgdfg', 1, '2025-02-08 21:03:07'),
-(4, 'hjgh', 'jghjgh', '9DYvkdd0Mx', 'jghjghjgh', 1, '2025-02-08 21:22:30');
 
 -- --------------------------------------------------------
 
@@ -474,16 +496,6 @@ CREATE TABLE `student_folder` (
   `folder_id` int(11) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping data for table `student_folder`
---
-
-INSERT INTO `student_folder` (`id`, `student_id`, `folder_id`, `created_at`) VALUES
-(1, '21-00396', 1, '2025-02-05 15:16:57'),
-(2, '21-07187', 1, '2025-02-05 15:17:20'),
-(3, '21-00623', 2, '2025-02-05 15:17:20'),
-(4, '21-08420', 4, '2025-02-08 21:38:46');
 
 -- --------------------------------------------------------
 
@@ -711,6 +723,7 @@ INSERT INTO `student_info` (`sr_code`, `g_email`, `first_name`, `middle_name`, `
 ('21-09828', '21-09828@g.batstate-u.edu.ph', 'KYLA CRYSHELLE ', 'E.', 'PANALIGAN'),
 ('21-09888', '21-09888@g.batstate-u.edu.ph', 'YVES SPENCER ', 'P.', 'CATUDAY'),
 ('21-09944', '21-09944@g.batstate-u.edu.ph', 'MC SANNDEL ANGELA ', 'M.', 'ACUZAR'),
+('21-34330', '21-34330@g.batstate-u.edu.ph', 'sdfsd', 'ewrwe', 'rwerwer'),
 ('22-00016', '22-00016@g.batstate-u.edu.ph', 'CYRAH ', 'M.', 'ALAMAG'),
 ('22-00066', '22-00066@g.batstate-u.edu.ph', 'KENNETH VIRGIL ', 'L.', 'BORBON'),
 ('22-00148', '22-00148@g.batstate-u.edu.ph', 'PIERRE ALLEN ', 'D.', 'VILLARETE'),
@@ -818,7 +831,11 @@ INSERT INTO `student_logs` (`log_id`, `student_id`, `action`, `timestamp`, `ip_a
 (13, '21-08420', 'Viewed folders he/she is joined in', '2025-03-06 00:54:26', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'),
 (14, '21-08420', 'Logged out', '2025-03-06 01:00:45', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'),
 (15, '19-00719', 'Logged in', '2025-03-06 05:56:12', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'),
-(16, '19-00719', 'Viewed folders he/she is joined in', '2025-03-06 06:00:12', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36');
+(16, '19-00719', 'Viewed folders he/she is joined in', '2025-03-06 06:00:12', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'),
+(17, '19-00719', 'Viewed folders he/she is joined in', '2025-03-06 06:14:47', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'),
+(18, '19-00719', 'Viewed folders he/she is joined in', '2025-03-06 06:14:57', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/133.0.0.0 Safari/537.36'),
+(19, '21-34311', 'Registered to the system', '2025-03-07 00:56:05', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36'),
+(20, '21-34330', 'Registered to the system', '2025-03-07 01:06:38', '127.0.0.1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36');
 
 -- --------------------------------------------------------
 
@@ -1097,7 +1114,8 @@ INSERT INTO `user_account` (`u_id`, `username`, `hashed_password`, `faculty_id`,
 (111364, '22-09493@g.batstate-u.edu.ph', 'MsiQs2M8oleD4BALHYk97U9PO7HO1oGsKk/6E2caWqbOiTiECGTxQ+TwuDEIJtJR', NULL, '22-09493', 'yes'),
 (111365, '22-09547@g.batstate-u.edu.ph', 'MsiQs2M8oleD4BALHYk97U9PO7HO1oGsKk/6E2caWqbOiTiECGTxQ+TwuDEIJtJR', NULL, '22-09547', 'yes'),
 (111366, '22-09662@g.batstate-u.edu.ph', 'MsiQs2M8oleD4BALHYk97U9PO7HO1oGsKk/6E2caWqbOiTiECGTxQ+TwuDEIJtJR', NULL, '22-09662', 'yes'),
-(111367, '23-09118@g.batstate-u.edu.ph', 'MsiQs2M8oleD4BALHYk97U9PO7HO1oGsKk/6E2caWqbOiTiECGTxQ+TwuDEIJtJR', NULL, '23-09118', 'yes');
+(111367, '23-09118@g.batstate-u.edu.ph', 'MsiQs2M8oleD4BALHYk97U9PO7HO1oGsKk/6E2caWqbOiTiECGTxQ+TwuDEIJtJR', NULL, '23-09118', 'yes'),
+(111369, '21-34330@g.batstate-u.edu.ph', 'X6wWP0JZzauXD+ZH5xTdjDk1D6hPRs68RIZqbYlAu+aUXBETZ2jDmMXsVxOMOt/Z', NULL, '21-34330', 'yes');
 
 -- --------------------------------------------------------
 
@@ -1341,7 +1359,7 @@ ALTER TABLE `auth_user_user_permissions`
 -- AUTO_INCREMENT for table `captcha_captchastore`
 --
 ALTER TABLE `captcha_captchastore`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=195;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=237;
 
 --
 -- AUTO_INCREMENT for table `django_admin_log`
@@ -1383,19 +1401,19 @@ ALTER TABLE `folder_tns`
 -- AUTO_INCREMENT for table `student_folder`
 --
 ALTER TABLE `student_folder`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- AUTO_INCREMENT for table `student_logs`
 --
 ALTER TABLE `student_logs`
-  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `user_account`
 --
 ALTER TABLE `user_account`
-  MODIFY `u_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=111369;
+  MODIFY `u_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=111370;
 
 --
 -- Constraints for dumped tables

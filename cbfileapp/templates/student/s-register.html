@@ -92,12 +92,12 @@
               
                 <div class="mb-3">
                   <label class="form-label">SR Code</label>
-                  <input type="text" class="form-control" name="sr_code" required placeholder="Enter your SR Code" />
+                  <input type="text" id="sr-code" class="form-control" name="sr_code" required placeholder="Enter your SR Code" />
                 </div>
               
                 <div class="mb-3">
                   <label class="form-label">Gsuite Account</label>
-                  <input type="text" class="form-control" name="username" required placeholder="Enter your username" />
+                  <input type="text" id="gsuite" readonly class="form-control" name="username" required placeholder="Enter your username" />
                 </div>
               
                 <div class="mb-3 form-password-toggle">
@@ -134,7 +134,16 @@
     <!-- / Content -->
 
  
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const srCodeInput = document.getElementById("sr-code");
+    const gsuiteInput = document.getElementById("gsuite");
 
+    srCodeInput.addEventListener("input", function () {
+        gsuiteInput.value = srCodeInput.value + "@g.batstate-u.edu.ph";
+    });
+});
+</script> 
     <!-- Core JS -->
     <!-- build:js assets/vendor/js/core.js -->
     <script src="{% static 'assets/vendor/libs/jquery/jquery.js' %}"></script>

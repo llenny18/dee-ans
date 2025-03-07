@@ -11,7 +11,8 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
-
+from decouple import config
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -60,6 +61,15 @@ EMAIL_USE_TLS = True  # Use TLS encryption (recommended)
 EMAIL_HOST_USER = 'dece.nas.system@gmail.com'  # Your email address
 EMAIL_HOST_PASSWORD = 'qryu golh eimk guer'  # Your email password (use App Passwords for Gmail)
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+
+
+NETWORK_DRIVE = {
+    "drive_letter": "Z:",
+    "network_path": "\\\\172.16.127.120\\shared_folder",
+    "username": os.getenv("NETWORK_USERNAME", "truenas_admin"),
+    "password": os.getenv("NETWORK_PASSWORD", "@dece@"),
+    "persistent": True,
+}
 
 MEDIA_ROOT = "Z:/"
 MEDIA_URL = "/media/"

@@ -803,7 +803,28 @@ def verify_otp(request):
             return redirect("student_everif")
 
 
+
+def map_network_drive():
+    """
+    Function to map the network drive using 'net use' command.
+    """
+    network_drive = settings.NETWORK_DRIVE
+    try:
+        # Run the 'net use' command to map the drive
+        run([
+            "net", "use", network_drive["drive_letter"], network_drive["network_path"],
+            f"/user:{network_drive['username']}", network_drive['password'],
+            "/persistent:yes"
+        ], check=True)
+    except CalledProcessError as e:
+        print(f"Error mapping network drive: {e}")
+        raise Exception("Failed to map network drive.")
+
+
 def view_folder_s(request, folder_code):
+    # Map the network drive before accessing files
+    map_network_drive()
+
     student_id = request.session.get('student_id')
     full_name = request.session.get('s_fullname')
 
@@ -816,7 +837,7 @@ def view_folder_s(request, folder_code):
         file = request.FILES["file_link"]
         file_description = request.POST.get('file_description', '')
 
-        # Save file in TrueNAS (or local media storage)
+        # Save file in TrueNAS (network drive)
         folder_path = os.path.join(settings.MEDIA_ROOT, folder_code)
         os.makedirs(folder_path, exist_ok=True)
 
@@ -843,8 +864,10 @@ def view_folder_s(request, folder_code):
     return render(request, 'student/folder_contents.html', context)
 
 
-
 def view_folder_f(request, folder_code):
+    # Map the network drive before accessing files
+    map_network_drive()
+
     faculty_id = request.session.get('faculty_id')
     full_name = request.session.get('a_fullname')
 
@@ -860,7 +883,7 @@ def view_folder_f(request, folder_code):
             file = request.FILES["file_link"]
             file_description = request.POST.get('file_description', '')
 
-            # Save file in TrueNAS (or local media storage)
+            # Save file in TrueNAS (network drive)
             folder_path = os.path.join(settings.MEDIA_ROOT, folder_code)
             os.makedirs(folder_path, exist_ok=True)
 
@@ -898,8 +921,12 @@ def view_folder_f(request, folder_code):
         'shared_files': shared_files,
     }
     return render(request, 'faculty/folder_contents.html', context)
-    
+
+
 def download_file(request, folder_code, file_name):
+    # Map the network drive before downloading files
+    map_network_drive()
+
     file_path = os.path.join(settings.MEDIA_ROOT, folder_code, file_name)
 
     if not os.path.exists(file_path):
@@ -907,7 +934,7 @@ def download_file(request, folder_code, file_name):
 
     return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=file_name)
 
-
+    
 def list_files(request):
     files = FolderFile.objects.all()
     return render(request, "list_files.html", {"files": files})
