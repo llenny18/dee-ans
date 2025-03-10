@@ -989,7 +989,7 @@ def view_folder_s(request, folder_code):
         "shared_files": shared_files,
         "files": files
     }
-    return render(request, "faculty/folder_contents.html", context)
+    return render(request, "student/folder_contents.html", context)
 
 
 def view_folder_f(request, folder_code):
