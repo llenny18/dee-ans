@@ -84,7 +84,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <form method="POST">
+        <form method="POST" enctype='multipart/form-data'>
           {% csrf_token %}
           <div class="row">
             <div class="col mb-3">
@@ -103,7 +103,7 @@
             </div>
           </div>
           <div class="modal-footer">
-            <button type="submit" class="btn btn-primary">Upload</button>
+            <button type="submit" name="upload_file" class="btn btn-primary">Upload</button>
           </div>
         </form>
       </div>
@@ -119,30 +119,60 @@
 <input type="text " class="form-control" name="search-value" id="search-val"  placeholder="Search by name or description..." onkeyup="filterFiles()" />
 <hr>
               <div class="row mb-5"   id="folder-contents">
-                  {% for file in uploaded_files %}
-                      <div class="col-md-6 col-xl-4 file-item" >
+              
+                  {% for pdf in files.pdfs %}
+                      <div class="col-md-6 col-xl-6 file-item" >
                           <div class="card mb-3">
                               <div class="card-body">
-                                  <h5 class="card-title file-name">Name: {{ file.file_name }}</h5>
-                                  <p class="card-text file-description">Description: {{ file.file_description }}</p>
+                                  <h5 class="card-title file-name">Name: {{ pdf.file_name }}</h5>
+                                  <p class="card-text file-description">Description: {{ pdf.file_description }}</p>
                                   
-                                  <!-- Check if it's a PDF -->
-                                  {% if file.file_link|slice:"-4:" == ".pdf" %}
-                                  <iframe src="{{ file.file_link }}" width="100%" height="400px"></iframe>
-                              {% elif file.file_link|slice:"-4:" == ".jpg" or file.file_link|slice:"-4:" == ".png" %}
-                                  <img src="{{ file.file_link }}" class="card-img-top" alt="{{ file.file_name }}" />
-                              {% else %}
-                                  <p>Unsupported file type</p>
-                              {% endif %}
+                                  <iframe src="{% url 'f_serve_file' folder_code=folder_code filename=pdf.file_link  %}" style="width: 100%;" height="400"></iframe>
+
                               <hr>
-                              <td><a class="btn btn-success" href="{% url 'download_file' folder_code=file.folder_code file_name=file.file_name %}">Download</a></td>
-                            
+                              <a href="{% url 'f_serve_file'  folder_code=folder_code filename=pdf.file_link  %}" class="btn btn-success" target="_blank" download>Download</a>
+
+                              </div>
+                          </div>
+                      </div>
+                  {% endfor %}
+
+                
+                  {% for pdf in files.videos %}
+                      <div class="col-md-6 col-xl-6 file-item" >
+                          <div class="card mb-3">
+                              <div class="card-body">
+                                  <h5 class="card-title file-name">Name: {{ pdf.file_name }}</h5>
+                                  <p class="card-text file-description">Description: {{ pdf.file_description }}</p>
+                                  
+                                  <video width="600" controls>
+                                    <source src="{% url 'f_serve_file'  folder_code=folder_code filename=pdf.file_link  %}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                              <hr>
+                              <a href="{% url 'f_serve_file'  folder_code=folder_code filename=pdf.file_link  %}" target="_blank">{{ video }}</a>
+
                               </div>
                           </div>
                       </div>
                   {% endfor %}
                  
+                  {% for pdf in files.images %}
+                      <div class="col-md-6 col-xl-6 file-item" >
+                          <div class="card mb-3">
+                              <div class="card-body">
+                                  <h5 class="card-title file-name">Name: {{ pdf.file_name }}</h5>
+                                  <p class="card-text file-description">Description: {{ pdf.file_description }}</p>
+                                  
+                                  <img style="width: 100%;"  src="{% url 'f_serve_file'  folder_code=folder_code filename=pdf.file_link  %}" width="300" alt="Image Preview">
 
+                              <hr>
+                              <a href="{% url 'f_serve_file'  folder_code=folder_code filename=pdf.file_link  %}" class="btn btn-success" target="_blank" download>Download</a>
+
+                              </div>
+                          </div>
+                      </div>
+                  {% endfor %}
               </div>
           </div>
           

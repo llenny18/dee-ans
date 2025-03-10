@@ -32,7 +32,8 @@ urlpatterns = [
     path("forgot_password/", views.send_otp_pass, name="send_otp"),
     path("enter_otp/", views.enter_otp, name="enter_otp"),
     path("change_password/", views.change_password, name="change_password"),
-    path('download/<str:folder_code>/<str:file_name>/', views.download_file, name='download_file'),
-    path('files/', views.list_files, name='list_files')
+    path("files/", views.list_network_files, name="list_network_files"),
+    path("files/<str:filename>/", views.serve_file, name="serve_file"),
+    path("f_files/<str:folder_code>/<str:filename>/", views.serve_folder_file, name="f_serve_file"),
 
 ]

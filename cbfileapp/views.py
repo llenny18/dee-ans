@@ -12,6 +12,13 @@ from django.core.mail import send_mail  # Sending emails
 from django.utils.timezone import now  # Handling timezone-aware datetime
 from django.utils.crypto import get_random_string  # Generating secure random strings
 
+import os
+from django.conf import settings
+from django.core.files.storage import FileSystemStorage
+from django.http import JsonResponse
+from django.shortcuts import render, redirect
+from django.urls import reverse
+from .models import FolderFile, StudentAccount, FilesShared
 # Django ORM imports
 from django.db.models import Prefetch, Q, OuterRef, Subquery, Exists  # Query optimization and filtering
 
@@ -806,14 +813,13 @@ def verify_otp(request):
 
 def map_network_drive():
     """
-    Function to map the network drive using 'net use' command.
+    Function to map the network drive without authentication.
     """
     network_drive = settings.NETWORK_DRIVE
     try:
-        # Run the 'net use' command to map the drive
+        # Run the 'net use' command without user authentication
         run([
             "net", "use", network_drive["drive_letter"], network_drive["network_path"],
-            f"/user:{network_drive['username']}", network_drive['password'],
             "/persistent:yes"
         ], check=True)
     except CalledProcessError as e:
@@ -821,120 +827,260 @@ def map_network_drive():
         raise Exception("Failed to map network drive.")
 
 
-def view_folder_s(request, folder_code):
-    # Map the network drive before accessing files
-    map_network_drive()
 
-    student_id = request.session.get('student_id')
-    full_name = request.session.get('s_fullname')
+# Define the Network Drive Path
+NETWORK_DRIVE_PATH = r"Z:\\"  # Update this if needed
+
+# Allowed file types
+IMAGE_EXTENSIONS = (".jpg", ".jpeg", ".png", ".gif", ".bmp", ".webp")
+VIDEO_EXTENSIONS = (".mp4", ".avi", ".mov", ".mkv", ".flv")
+PDF_EXTENSION = ".pdf"
+
+def list_network_files(request):
+    """ List all PDFs, images, and videos in the network drive. """
+    files = {
+        "pdfs": [],
+        "images": [],
+        "videos": []
+    }
+
+    if os.path.exists(NETWORK_DRIVE_PATH):
+        all_files = os.listdir(NETWORK_DRIVE_PATH)
+
+        for file in all_files:
+            if file.endswith(PDF_EXTENSION):
+                files["pdfs"].append(file)
+            elif file.endswith(IMAGE_EXTENSIONS):
+                files["images"].append(file)
+            elif file.endswith(VIDEO_EXTENSIONS):
+                files["videos"].append(file)
+
+    return render(request, "list_files.html", {"files": files})
+
+def serve_file(request, filename):
+    """ Serve PDF, image, or video from the network drive. """
+    file_path = os.path.join(NETWORK_DRIVE_PATH, filename)
+
+    if not os.path.exists(file_path):
+        raise Http404("File not found")
+
+    # Determine content type
+    if filename.endswith(PDF_EXTENSION):
+        content_type = "application/pdf"
+    elif filename.endswith(IMAGE_EXTENSIONS):
+        content_type = "image/jpeg"  # Generic image type
+    elif filename.endswith(VIDEO_EXTENSIONS):
+        content_type = "video/mp4"  # Generic video type
+    else:
+        raise Http404("Unsupported file type")
+
+    response = FileResponse(open(file_path, "rb"), content_type=content_type)
+    response["Content-Disposition"] = f'inline; filename="{filename}"'  # Inline viewing
+    return response
+
+
+def serve_folder_file(request, filename, folder_code):
+    """ Serve PDF, image, or video from the network drive. """
+    file_path = os.path.join(NETWORK_DRIVE_PATH, folder_code , filename)
+
+    if not os.path.exists(file_path):
+        raise Http404("File not found")
+
+    # Determine content type
+    if filename.endswith(PDF_EXTENSION):
+        content_type = "application/pdf"
+    elif filename.endswith(IMAGE_EXTENSIONS):
+        content_type = "image/jpeg"  # Generic image type
+    elif filename.endswith(VIDEO_EXTENSIONS):
+        content_type = "video/mp4"  # Generic video type
+    else:
+        raise Http404("Unsupported file type")
+
+    response = FileResponse(open(file_path, "rb"), content_type=content_type)
+    response["Content-Disposition"] = f'inline; filename="{filename}"'  # Inline viewing
+    return response
+
+def view_folder_s(request, folder_code):
+    """ Faculty view of folder with file listing. """
+    student_id = request.session.get("student_id")
+    full_name = request.session.get("a_fullname")
 
     if not student_id:
-        return redirect(reverse('student_login'))
-
-    uploaded_files = FolderFile.objects.filter(folder_code=folder_code)
-
-    if request.method == 'POST' and request.FILES.get("file_link"):
-        file = request.FILES["file_link"]
-        file_description = request.POST.get('file_description', '')
-
-        # Save file in TrueNAS (network drive)
-        folder_path = os.path.join(settings.MEDIA_ROOT, folder_code)
-        os.makedirs(folder_path, exist_ok=True)
-
-        fs = FileSystemStorage(location=folder_path)
-        file_name = fs.save(file.name, file)
-
-        # Store filename in MySQL
-        new_file = FolderFile.objects.create(
-            folder_code=folder_code,
-            file_name=file_name,
-            file_description=file_description,
-            file_link=os.path.join(folder_code, file_name).replace("\\", "/"),
-            uploader_id=student_id
-        )
-
-        return redirect(reverse('view_folder_s', kwargs={'folder_code': folder_code}))
-
-    context = {
-        'student_id': student_id,
-        'full_name': full_name,
-        'uploaded_files': uploaded_files,
-        'folder_code': folder_code,
-    }
-    return render(request, 'student/folder_contents.html', context)
-
-
-def view_folder_f(request, folder_code):
-    # Map the network drive before accessing files
-    map_network_drive()
-
-    faculty_id = request.session.get('faculty_id')
-    full_name = request.session.get('a_fullname')
-
-    if not faculty_id:
-        return redirect(reverse('faculty_login'))
+        return redirect(reverse("student_login"))
 
     folder_files = FolderFile.objects.filter(folder_code=folder_code)
     students = StudentAccount.objects.all()
     shared_files = FilesShared.objects.filter(folder_code=folder_code)
 
-    if request.method == 'POST':
-        if 'upload_file' in request.POST and request.FILES.get("file_link"):
+    files = {
+        "pdfs": [],
+        "images": [],
+        "videos": []
+    }
+
+    folder_path = os.path.join(NETWORK_DRIVE_PATH, folder_code)
+    print(folder_path)
+
+    if os.path.exists(folder_path):
+        all_files = os.listdir(folder_path)
+
+        for file in all_files:
+            file_record = folder_files.filter(file_name=file).first()  # Get file info if exists in DB
+            file_info = {
+                "file_name": file,
+                "file_description": file_record.file_description if file_record else "No description",
+                "file_link": file,
+            }
+
+            if file.lower().endswith(PDF_EXTENSION):
+                files["pdfs"].append(file_info)
+            elif file.lower().endswith(IMAGE_EXTENSIONS):
+                files["images"].append(file_info)
+            elif file.lower().endswith(VIDEO_EXTENSIONS):
+                files["videos"].append(file_info)
+
+
+    if request.method == "POST":
+        try:
+            # Debugging: Print request data
+            print("POST Data:", request.POST)
+            print("FILES Data:", request.FILES)
+
+            if "upload_file" not in request.POST:
+                return JsonResponse({"error": "Missing 'upload_file' field"}, status=400)
+
+            if "file_link" not in request.FILES:
+                return JsonResponse({"error": "No file uploaded"}, status=400)
+
             file = request.FILES["file_link"]
-            file_description = request.POST.get('file_description', '')
+            file_description = request.POST.get("file_description", "")
+            folder_code = request.POST.get("folder_code", folder_code)  # Ensure folder_code is provided
 
-            # Save file in TrueNAS (network drive)
+            # Define the folder path in the network drive
             folder_path = os.path.join(settings.MEDIA_ROOT, folder_code)
-            os.makedirs(folder_path, exist_ok=True)
+            os.makedirs(folder_path, exist_ok=True)  # Create the folder if it doesn't exist
 
+            # Save file in the specified folder
             fs = FileSystemStorage(location=folder_path)
             file_name = fs.save(file.name, file)
 
             # Store filename in MySQL
-            new_file = FolderFile.objects.create(
+            FolderFile.objects.create(
                 folder_code=folder_code,
                 file_name=file_name,
                 file_description=file_description,
                 file_link=os.path.join(folder_code, file_name).replace("\\", "/"),
-                uploader_id=faculty_id
+                uploader_id=student_id,
             )
 
-            return redirect(reverse('view_folder_f', kwargs={'folder_code': folder_code}))
+            return redirect("view_folder_s", folder_code=folder_code)
 
-        elif 'share_file' in request.POST:
-            file_id = request.POST.get('file_id')
-            student_id = request.POST.get('student_id')
 
-            if file_id and student_id:
-                shared_file = FilesShared.objects.create(
-                    folder_code=folder_code,
-                    file_id=file_id,
-                    student_id=student_id
-                )
+        except Exception as e:
+            return JsonResponse({"error": "File upload failed", "details": str(e)}, status=500)
+
 
     context = {
-        'faculty_id': faculty_id,
-        'full_name': full_name,
-        'folder_files': folder_files,
-        'folder_code': folder_code,
-        'students': students,
-        'shared_files': shared_files,
+        "student_id": student_id,
+        "full_name": full_name,
+        "folder_files": folder_files,
+        "folder_code": folder_code,
+        "students": students,
+        "shared_files": shared_files,
+        "files": files
     }
-    return render(request, 'faculty/folder_contents.html', context)
+    return render(request, "faculty/folder_contents.html", context)
 
 
-def download_file(request, folder_code, file_name):
-    # Map the network drive before downloading files
-    map_network_drive()
+def view_folder_f(request, folder_code):
+    """ Faculty view of folder with file listing. """
+    faculty_id = request.session.get("faculty_id")
+    full_name = request.session.get("a_fullname")
 
-    file_path = os.path.join(settings.MEDIA_ROOT, folder_code, file_name)
+    if not faculty_id:
+        return redirect(reverse("faculty_login"))
 
-    if not os.path.exists(file_path):
-        return JsonResponse({"error": "File not found"}, status=404)
+    folder_files = FolderFile.objects.filter(folder_code=folder_code)
+    students = StudentAccount.objects.all()
+    shared_files = FilesShared.objects.filter(folder_code=folder_code)
 
-    return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=file_name)
+    files = {
+        "pdfs": [],
+        "images": [],
+        "videos": []
+    }
 
-    
-def list_files(request):
-    files = FolderFile.objects.all()
-    return render(request, "list_files.html", {"files": files})
+    folder_path = os.path.join(NETWORK_DRIVE_PATH, folder_code)
+    print(folder_path)
+
+    if os.path.exists(folder_path):
+        all_files = os.listdir(folder_path)
+
+        for file in all_files:
+            file_record = folder_files.filter(file_name=file).first()  # Get file info if exists in DB
+            file_info = {
+                "file_name": file,
+                "file_description": file_record.file_description if file_record else "No description",
+                "file_link": file,
+            }
+
+            if file.lower().endswith(PDF_EXTENSION):
+                files["pdfs"].append(file_info)
+            elif file.lower().endswith(IMAGE_EXTENSIONS):
+                files["images"].append(file_info)
+            elif file.lower().endswith(VIDEO_EXTENSIONS):
+                files["videos"].append(file_info)
+
+
+    if request.method == "POST":
+        try:
+            # Debugging: Print request data
+            print("POST Data:", request.POST)
+            print("FILES Data:", request.FILES)
+
+            if "upload_file" not in request.POST:
+                return JsonResponse({"error": "Missing 'upload_file' field"}, status=400)
+
+            if "file_link" not in request.FILES:
+                return JsonResponse({"error": "No file uploaded"}, status=400)
+
+            file = request.FILES["file_link"]
+            file_description = request.POST.get("file_description", "")
+            folder_code = request.POST.get("folder_code", folder_code)  # Ensure folder_code is provided
+
+            # Define the folder path in the network drive
+            folder_path = os.path.join(settings.MEDIA_ROOT, folder_code)
+            os.makedirs(folder_path, exist_ok=True)  # Create the folder if it doesn't exist
+
+            # Save file in the specified folder
+            fs = FileSystemStorage(location=folder_path)
+            file_name = fs.save(file.name, file)
+
+            # Store filename in MySQL
+            FolderFile.objects.create(
+                folder_code=folder_code,
+                file_name=file_name,
+                file_description=file_description,
+                file_link=os.path.join(folder_code, file_name).replace("\\", "/"),
+                uploader_id=faculty_id,
+            )
+
+            return redirect("view_folder_f", folder_code=folder_code)
+
+
+        except Exception as e:
+            return JsonResponse({"error": "File upload failed", "details": str(e)}, status=500)
+
+
+    context = {
+        "faculty_id": faculty_id,
+        "full_name": full_name,
+        "folder_files": folder_files,
+        "folder_code": folder_code,
+        "students": students,
+        "shared_files": shared_files,
+        "files": files
+    }
+    return render(request, "faculty/folder_contents.html", context)
+
+

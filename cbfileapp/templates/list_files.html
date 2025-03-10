@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Network Drive Files</title>
+</head>
+<body>
+    <h2>Files in Network Drive</h2>
+
+    <!-- PDFs Section -->
+    <h3>PDF Files</h3>
+    <ul>
+        {% for pdf in files.pdfs %}
+            <li>
+                <a href="{% url 'serve_file' pdf %}" target="_blank">{{ pdf }}</a>
+                <iframe src="{% url 'serve_file' pdf %}" width="600" height="400"></iframe>
+            </li>
+        {% empty %}
+            <li>No PDF files found.</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Images Section -->
+    <h3>Image Files</h3>
+    <ul>
+        {% for image in files.images %}
+            <li>
+                <a href="{% url 'serve_file' image %}" target="_blank">{{ image }}</a>
+                <img src="{% url 'serve_file' image %}" width="300" alt="Image Preview">
+            </li>
+        {% empty %}
+            <li>No image files found.</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Videos Section -->
+    <h3>Video Files</h3>
+    <ul>
+        {% for video in files.videos %}
+            <li>
+                <a href="{% url 'serve_file' video %}" target="_blank">{{ video }}</a>
+                <video width="600" controls>
+                    <source src="{% url 'serve_file' video %}" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </li>
+        {% empty %}
+            <li>No video files found.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

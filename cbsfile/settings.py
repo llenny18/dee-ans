@@ -63,13 +63,23 @@ EMAIL_HOST_PASSWORD = 'qryu golh eimk guer'  # Your email password (use App Pass
 DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 
 
+# NETWORK_DRIVE = {
+#     "drive_letter": "Z:",
+#     "network_path": "\\\\172.16.127.120\\shared_folder",
+#     "username": os.getenv("NETWORK_USERNAME", "truenas_admin"),
+#     "password": os.getenv("NETWORK_PASSWORD", "@dece@"),
+#     "persistent": True,
+# }
+# Allow iframe embedding for PDF files
+X_FRAME_OPTIONS = "SAMEORIGIN"  # Allow iframes from the same site
+
+
 NETWORK_DRIVE = {
     "drive_letter": "Z:",
-    "network_path": "\\\\172.16.127.120\\shared_folder",
-    "username": os.getenv("NETWORK_USERNAME", "truenas_admin"),
-    "password": os.getenv("NETWORK_PASSWORD", "@dece@"),
+    "network_path": "\\192.168.102.219\nastry",
     "persistent": True,
 }
+
 
 MEDIA_ROOT = "Z:/"
 MEDIA_URL = "/media/"
